@@ -3,40 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frequência Escolar Online</title>
+  <title>Terminal do Tablet - Código da Sala</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .card { background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
-    h1 { color: #333; margin-bottom: 10px; font-size: 24px; }
-    p { color: #666; margin-bottom: 30px; font-size: 14px; }
-    .btn-tablet { 
-      display: inline-block; 
-      background-color: #007bff; 
-      color: white; 
-      padding: 16px 24px; 
-      border-radius: 8px; 
-      text-decoration: none; 
-      font-weight: bold; 
-      font-size: 16px;
-      width: 100%;
-      box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-      transition: background-color 0.2s;
-    }
-    .btn-tablet:hover { background-color: #0056b3; }
+    body { background-color: #1e1e2f; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; color: #fff; }
+    .card { background: #2b2b40; padding: 35px 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
+    h2 { margin-bottom: 10px; font-size: 22px; color: #fff; }
+    p { color: #aaa; margin-bottom: 25px; font-size: 13px; }
+    input { width: 100%; padding: 14px; border: 1px solid #444; background: #1e1e2f; color: #fff; border-radius: 8px; font-size: 16px; text-align: center; letter-spacing: 2px; margin-bottom: 20px; outline: none; }
+    input:focus { border-color: #007bff; }
+    button { background-color: #007bff; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; transition: background 0.2s; }
+    button:hover { background-color: #0056b3; }
+    .error-msg { color: #ff6b6b; font-size: 12px; margin-top: 10px; display: none; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h1>Bem-vindo ao Sistema</h1>
-    <p>Selecione a opção desejada para continuar</p>
+  <div class="card" id="tela-codigo">
+    <h2>Painel do Tablet</h2>
+    <p>Digite o código da sala gerado pelo Administrador para liberar o terminal.</p>
     
-    <!-- Botão de acesso direto ao tablet -->
-    <a href="tablet.html" class="btn-tablet">
-      📱 Acessar Painel do Tablet
-    </a>
+    <input type="text" id="codigoSala" placeholder="EX: SALA123" required>
+    <button onclick="verificarCodigo()">Acessar Terminal</button>
+    <div id="erro" class="error-msg">Código incorreto. Tente novamente.</div>
   </div>
+
+  <script>
+    function verificarCodigo() {
+      const codigoDigitado = document.getElementById('codigoSala').value.trim();
+      
+      // Aqui você define provisoriamente qual é o código válido da sala (ou integra com o backend depois)
+      // Exemplo de código da sala: "1234" ou o que o Admin cadastrou
+      if (codigoDigitado !== "") {
+        // Salva que a sala foi autorizada e recarrega ou mostra o terminal do tablet
+        localStorage.setItem('salaAutorizada', codigoDigitado);
+        alert('Código aceito! Abrindo o terminal do tablet...');
+        
+        // Se quiser que mude para o painel real do tablet, substitua abaixo ou mantenha a lógica atual
+        // window.location.href = 'terminal-frequencia.html'; 
+      } else {
+        document.getElementById('erro').style.display = 'block';
+      }
+    }
+  </script>
 
 </body>
 </html>
