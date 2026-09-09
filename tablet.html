@@ -11,9 +11,7 @@
     h2 { margin-bottom: 10px; font-size: 22px; color: #fff; }
     p { color: #aaa; margin-bottom: 25px; font-size: 13px; }
     input { width: 100%; padding: 14px; border: 1px solid #444; background: #1e1e2f; color: #fff; border-radius: 8px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; }
-    input:focus { border-color: #007bff; }
-    button { background-color: #007bff; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
-    button:hover { background-color: #0056b3; }
+    button { background-color: #007bff; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; margin-top: 10px; }
     .hidden { display: none; }
     video { width: 100%; border-radius: 8px; margin-bottom: 15px; background: #000; }
     canvas { display: none; }
@@ -22,15 +20,13 @@
 </head>
 <body>
 
-  <!-- TELA 1: CÓDIGO DA SALA DO ADMIN -->
   <div class="card" id="tela-sala">
     <h2>Painel do Tablet</h2>
-    <p>Digite o código da sala gerado pelo Administrador para liberar o terminal.</p>
+    <p>Digite o código da sala gerado pelo Admin.</p>
     <input type="text" id="codigoSalaInput" placeholder="EX: SALA123">
-    <button onclick="validarCodigoSala()">Acessar Terminal</button>
+    <button onclick="validarSala()">Acessar</button>
   </div>
 
-  <!-- TELA 2: DIGITAR CPF DO ALUNO -->
   <div class="card hidden" id="tela-cpf">
     <h2>Registro de Presença</h2>
     <p>Digite o CPF do aluno cadastrado</p>
@@ -38,88 +34,76 @@
     <button onclick="verificarCPF()">Buscar Aluno</button>
   </div>
 
-  <!-- TELA 3: CÂMERA E CAPTURA DE FOTO -->
   <div class="card hidden" id="tela-camera">
-    <h2>Capturar Presença</h2>
-    <p id="alunoNomeInfo">Posicione-se para a foto de confirmação</p>
+    <h2>Capturar Foto</h2>
+    <p id="alunoInfo">Posicione-se para a foto</p>
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
-    <button onclick="tirarFotoESalvar()">Tirar Foto e Enviar</button>
+    <button onclick="tirarFoto()">Tirar Foto e Enviar</button>
   </div>
 
-  <!-- TELA 4: SUCESSO -->
   <div class="card hidden" id="tela-sucesso">
     <h2>Presença Registrada!</h2>
-    <div class="success-box">
-      Foto enviada e responsável notificado com sucesso!
-    </div>
-    <button onclick="reiniciarTerminal()">Próximo Aluno</button>
+    <div class="success-box">Foto enviada e responsável notificado!</div>
+    <button onclick="reiniciar()">Próximo Aluno</button>
   </div>
 
   <script>
     let streamCamera = null;
+    let alunoAtual = null;
 
-    function validarCodigoSala() {
-      const codigo = document.getElementById('codigoSalaInput').value.trim();
-      if (codigo !== "") {
+    function validarSala() {
+      if (document.getElementById('codigoSalaInput').value.trim() !== "") {
         document.getElementById('tela-sala').classList.add('hidden');
         document.getElementById('tela-cpf').classList.remove('hidden');
-      } else {
-        alert('Por favor, digite o código da sala.');
-      }
+      } else { alert('Digite o código.'); }
     }
 
     function verificarCPF() {
       const cpf = document.getElementById('cpfAlunoInput').value.trim();
-      if (cpf.length < 11) {
-        alert('Digite um CPF válido.');
-        return;
-      }
+      const contas = JSON.parse(localStorage.getItem('listaContas') || '[]');
+      alunoAtual = contas.find(c => c.cpf === cpf);
 
-      // Avança para a câmera após puxar o CPF do banco de dados
-      document.getElementById('tela-cpf').classList.add('hidden');
-      document.getElementById('tela-camera').classList.remove('hidden');
-      iniciarCamera();
-    }
-
-    async function iniciarCamera() {
-      try {
-        const videoElement = document.getElementById('video');
-        streamCamera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-        videoElement.srcObject = streamCamera;
-      } catch (err) {
-        alert('Erro ao acessar a câmera. Verifique as permissões do navegador.');
+      if (alunoAtual) {
+        document.getElementById('alunoInfo').innerText = `Aluno: ${alunoAtual.nome}`;
+        document.getElementById('tela-cpf').classList.add('hidden');
+        document.getElementById('tela-camera').classList.remove('hidden');
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false }).then(s => {
+          streamCamera = s;
+          document.getElementById('video').srcObject = s;
+        }).catch(() => alert('Erro na câmera.'));
+      } else {
+        alert('CPF não encontrado no sistema!');
       }
     }
 
-    function tirarFotoESalvar() {
+    function tirarFoto() {
       const video = document.getElementById('video');
       const canvas = document.getElementById('canvas');
-      const context = canvas.getContext('2d');
-
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.getContext('2d').drawImage(video, 0, 0);
 
-      const imagemBase64 = canvas.toDataURL('image/png');
+      if (streamCamera) streamCamera.getTracks().forEach(t => t.stop());
 
-      if (streamCamera) {
-        streamCamera.getTracks().forEach(track => track.stop());
-      }
+      const agora = new Date();
+      const horario = agora.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+      const data = agora.toLocaleDateString('pt-BR');
 
-      // Aqui o código envia a foto e o CPF para o backend salvar e notificar o responsável
+      let regs = JSON.parse(localStorage.getItem('registrosPresenca') || '[]');
+      regs.push({ nome: alunoAtual.nome, cpf: alunoAtual.cpf, turma: alunoAtual.turma, horario, data, status: 'Presente' });
+      localStorage.setItem('registrosPresenca', JSON.stringify(regs));
 
       document.getElementById('tela-camera').classList.add('hidden');
       document.getElementById('tela-sucesso').classList.remove('hidden');
     }
 
-    function reiniciarTerminal() {
+    function reiniciar() {
       document.getElementById('cpfAlunoInput').value = '';
       document.getElementById('codigoSalaInput').value = '';
       document.getElementById('tela-sucesso').classList.add('hidden');
       document.getElementById('tela-sala').classList.remove('hidden');
     }
   </script>
-
 </body>
 </html>
