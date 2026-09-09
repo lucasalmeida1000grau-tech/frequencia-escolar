@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tablet Escola - Chamada</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #111; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .box { background: #222; padding: 25px; border-radius: 12px; text-align: center; max-width: 420px; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    h2 { margin-bottom: 10px; color: #fff; }
+    p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
+    video, canvas { width: 100%; border-radius: 8px; background: #000; margin: 10px 0; }
+    input { width: 100%; padding: 14px; font-size: 20px; text-align: center; border-radius: 6px; border: 2px solid #444; background: #333; color: white; margin-bottom: 15px; letter-spacing: 2px; }
+    input:focus { border-color: #28a745; outline: none; }
+    button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #218838; }
+    #status-msg { margin-top: 15px; font-size: 16px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>Painel da Sala - Frequência</h2>
+    <p>Digite os 11 dígitos do seu CPF e bata o ponto</p>
+
+    <!-- Trava para aceitar exatamente 11 números -->
+    <input type="text" id="cpf-aluno" maxlength="11" placeholder="00000000000" oninput="this.value = this.value.replace(/\D/g, '')">
+    
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <button onclick="baterPonto()">Bater Ponto e Tirar Foto</button>
+    <div id="status-msg"></div>
+  </div>
+
+  <script>
+    const API_URL = 'https://frequencia-escolar-online.onrender.com';
+    const video = document.getElementById('video');
+
+    // Inicia a câmera automaticamente no tablet
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Erro ao acessar a câmera do tablet.");
+      });
+
+    async function baterPonto() {
+      const cpfInput = document.getElementById('cpf-aluno');
+      const cpf = cpfInput.value;
+      const statusMsg = document.getElementById('status-msg');
+
+      // Validação rigorosa dos 11 dígitos
+      if (cpf.length !== 11) {
+        statusMsg.style.color = '#ffc107';
+        statusMsg.innerText = "O CPF precisa ter exatamente 11 dígitos!";
+        return;
+      }
+
+      statusMsg.style.color = '#fff';
+      statusMsg.innerText = "Processando foto...";
+
+      // Tira a foto da câmera instantaneamente
+      const canvas = document.getElementById('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      const fotoBase64 = canvas.toDataURL('image/jpeg');
+
+      // Pega o horário atual (HH:MM)
+      const agora = new Date();
+      const horaMinuto = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
+
+      try {
+        const response = await fetch(`${API_URL}/api/registrar-ponto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpf, foto: fotoBase64, horaMinuto })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          statusMsg.style.color = '#28a745';
+          statusMsg.innerText = "Presença registrada com sucesso!";
+          cpfInput.value = ''; // Limpa o campo para o próximo aluno
+        } else {
+          statusMsg.style.color = '#dc3545';
+          statusMsg.innerText = data.mensagem || "Erro ao registrar.";
+        }
+      } catch (err) {
+        statusMsg.style.color = '#dc3545';
+        statusMsg.innerText = "Erro de conexão com o servidor.";
+      }
+    }
+  </script>
+</body>
+</html>
