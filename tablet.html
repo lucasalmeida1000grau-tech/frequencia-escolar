@@ -3,96 +3,203 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frequência Escolar - Login</title>
+  <title>Painel do Tablet - Frequência Escolar</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; position: relative; }
-    .top-links { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 99; }
-    .icon-btn { background: #e0e0e0; border: none; padding: 10px 12px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; }
-    .icon-btn:hover { background: #d0d0d0; }
-    .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-    h2 { margin-bottom: 20px; color: #333; }
-    .input-group { margin-bottom: 15px; text-align: left; }
-    label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
-    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+    h2 { color: #333; margin-bottom: 10px; }
+    p { color: #666; margin-bottom: 20px; font-size: 14px; }
+    input, button { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px; font-size: 16px; }
+    input { border: 2px solid #ccc; text-align: center; }
     input:focus { border-color: #007bff; outline: none; }
-    button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
+    button { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
     button:hover { background-color: #0056b3; }
-    .toggle-link { margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; display: inline-block; }
+    .btn-success { background-color: #28a745; }
+    .btn-success:hover { background-color: #218838; }
+    video, canvas { width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 15px; background: #000; display: none; }
+    #nome-aluno-exibido { font-size: 20px; color: #007bff; font-weight: bold; margin-bottom: 15px; }
+    #mensagem-status { margin-top: 15px; font-size: 16px; font-weight: bold; }
+    .sucesso { color: #28a745; }
+    .erro { color: #dc3545; }
+    .voltar { display: inline-block; margin-top: 10px; color: #666; text-decoration: none; font-size: 14px; }
   </style>
 </head>
 <body>
 
-  <!-- Atalhos no topo: Painel do Tablet (apontando direto para tablet.html) e Painel Administrador -->
-  <div class="top-links">
-    <a href="tablet.html" class="icon-btn" title="Painel do Tablet">📱</a>
-    <a href="./adm/" class="icon-btn" title="Painel Administrador">⚙️</a>
+  <!-- ETAPA 1: TERMINAL (CÓDIGO DA SALA) -->
+  <div class="card" id="etapa-terminal">
+    <h2>💻 Terminal do Tablet</h2>
+    <p>Insira o código da sala cadastrado pelo Administrador</p>
+    <input type="text" id="input-codigo-sala" placeholder="Ex: COD123">
+    <button onclick="validarSala()">Acessar Sala</button>
+    <a href="./index.html" class="voltar">← Voltar para o Início</a>
   </div>
 
-  <div class="container">
-    <h2 id="form-title">Acessar Conta</h2>
-
-    <form id="auth-form">
-      <div class="input-group" id="nome-group" style="display: none;">
-        <label>Nome Completo</label>
-        <input type="text" id="nome" placeholder="Seu nome">
-      </div>
-
-      <div class="input-group">
-        <label>E-mail</label>
-        <input type="email" id="email" required placeholder="seuemail@exemplo.com">
-      </div>
-
-      <div class="input-group">
-        <label>Senha</label>
-        <input type="password" id="senha" required placeholder="********">
-      </div>
-
-      <button type="submit" id="btn-submit">Entrar</button>
-    </form>
-
-    <span class="toggle-link" id="toggle-btn" onclick="alternarModo()">Não tem uma conta? Cadastre-se</span>
+  <!-- ETAPA 2: DIGITAR O CPF DO ALUNO -->
+  <div class="card" id="etapa-cpf" style="display: none;">
+    <h2 id="titulo-turma">Turma</h2>
+    <p>Digite o CPF do Aluno para registrar a presença</p>
+    <input type="text" id="input-cpf" placeholder="000.000.000-00">
+    <button onclick="buscarAlunoPorCpf()" class="btn-success">Continuar</button>
+    <button onclick="voltarParaTerminal()" style="background: #6c757d;">Trocar de Sala</button>
   </div>
+
+  <!-- ETAPA 3: CONFIRMAÇÃO DO NOME E FOTO -->
+  <div class="card" id="etapa-camera" style="display: none;">
+    <h2>📸 Confirmação de Presença</h2>
+    <div id="nome-aluno-exibido">Nome do Aluno</div>
+    
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <button onclick="tirarFotoEEnviar()" class="btn-success" id="btn-foto">Tirar Foto e Enviar</button>
+    <button onclick="cancelarCamera()" style="background: #dc3545;">Cancelar / Outro CPF</button>
+  </div>
+
+  <div id="mensagem-status" style="text-align: center;"></div>
 
   <script>
     const API_URL = 'https://frequencia-escolar-online.onrender.com';
-    let isCadastro = false;
+    let salaAtual = '';
+    let cpfAtual = '';
+    let streamCamera = null;
 
-    function alternarModo() {
-      isCadastro = !isCadastro;
-      document.getElementById('form-title').innerText = isCadastro ? 'Criar Conta' : 'Acessar Conta';
-      document.getElementById('btn-submit').innerText = isCadastro ? 'Cadastrar' : 'Entrar';
-      document.getElementById('nome-group').style.display = isCadastro ? 'block' : 'none';
-      document.getElementById('toggle-btn').innerText = isCadastro ? 'Já tem uma conta? Faça Login' : 'Não tem uma conta? Cadastre-se';
-    }
-
-    document.getElementById('auth-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
-      const nome = document.getElementById('nome').value;
-
-      const endpoint = isCadastro ? '/api/cadastro' : '/api/login';
-      const payload = isCadastro ? { nome, email, senha } : { email, senha };
+    async function validarSala() {
+      const codigo = document.getElementById('input-codigo-sala').value.trim();
+      if (!codigo) {
+        alert('Por favor, digite o código do terminal.');
+        return;
+      }
 
       try {
-        const response = await fetch(`${API_URL}${endpoint}`, {
+        const res = await fetch(`${API_URL}/api/tablet/validar-sala`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ codigo })
         });
+        const data = await res.json();
 
-        const data = await response.json();
-        if (response.ok) {
-          window.location.href = './app-pais/';
+        if (res.ok) {
+          salaAtual = codigo;
+          document.getElementById('titulo-turma').innerText = `Sala: ${data.nomeTurma || codigo}`;
+          document.getElementById('etapa-terminal').style.display = 'none';
+          document.getElementById('etapa-cpf').style.display = 'block';
         } else {
-          alert(data.mensagem);
+          alert(data.mensagem || 'Código de terminal inválido.');
         }
       } catch (err) {
         alert('Erro ao conectar com o servidor.');
       }
-    });
+    }
+
+    function voltarParaTerminal() {
+      document.getElementById('etapa-cpf').style.display = 'none';
+      document.getElementById('etapa-terminal').style.display = 'block';
+      document.getElementById('input-codigo-sala').value = '';
+    }
+
+    async function buscarAlunoPorCpf() {
+      const cpf = document.getElementById('input-cpf').value.trim();
+      if (!cpf) {
+        alert('Digite o CPF do aluno.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/api/tablet/buscar-aluno`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpf })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          cpfAtual = cpf;
+          document.getElementById('nome-aluno-exibido').innerText = data.nome || 'Aluno Encontrado';
+          document.getElementById('etapa-cpf').style.display = 'none';
+          document.getElementById('etapa-camera').style.display = 'block';
+          iniciarCamera();
+        } else {
+          alert(data.mensagem || 'CPF não encontrado no banco de dados.');
+        }
+      } catch (err) {
+        alert('Erro ao buscar CPF no sistema.');
+      }
+    }
+
+    async function iniciarCamera() {
+      try {
+        streamCamera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        const video = document.getElementById('video');
+        video.style.display = 'block';
+        video.srcObject = streamCamera;
+      } catch (err) {
+        alert('Não foi possível acessar a câmera do dispositivo.');
+        cancelarCamera();
+      }
+    }
+
+    async function tirarFotoEEnviar() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      
+      canvas.width = video.videoWidth || 400;
+      canvas.height = video.videoHeight || 300;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      pararCamera();
+
+      try {
+        const response = await fetch(`${API_URL}/api/tablet/registrar-presenca`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codigoSala: salaAtual,
+            cpfAluno: cpfAtual,
+            foto: fotoBase64
+          })
+        });
+
+        const data = await response.json();
+        const statusDiv = document.getElementById('mensagem-status');
+
+        if (response.ok) {
+          statusDiv.className = 'sucesso';
+          statusDiv.innerText = data.mensagem || 'Presença registrada e foto enviada ao aplicativo!';
+        } else {
+          statusDiv.className = 'erro';
+          statusDiv.innerText = data.mensagem || 'Erro ao registrar presença.';
+        }
+      } catch (err) {
+        alert('Erro de conexão ao enviar os dados.');
+      }
+
+      setTimeout(() => {
+        document.getElementById('mensagem-status').innerText = '';
+        document.getElementById('input-cpf').value = '';
+        document.getElementById('etapa-camera').style.display = 'none';
+        document.getElementById('etapa-cpf').style.display = 'block';
+      }, 4000);
+    }
+
+    function pararCamera() {
+      if (streamCamera) {
+        streamCamera.getTracks().forEach(track => track.stop());
+        streamCamera = null;
+      }
+      document.getElementById('video').style.display = 'none';
+    }
+
+    function cancelarCamera() {
+      pararCamera();
+      document.getElementById('etapa-camera').style.display = 'none';
+      document.getElementById('etapa-cpf').style.display = 'block';
+      document.getElementById('input-cpf').value = '';
+    }
   </script>
 </body>
 </html>
-.
