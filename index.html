@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frequência Escolar - Sistema</title>
+  <title>Frequência Escolar - Login</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .card { background: white; padding: 35px 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
-    h1 { color: #333; margin-bottom: 8px; font-size: 22px; }
+    .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+    h1 { color: #333; margin-bottom: 6px; font-size: 22px; }
     p { color: #666; margin-bottom: 20px; font-size: 13px; }
     
-    .form-group { margin-bottom: 15px; text-align: left; }
-    label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: bold; }
-    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+    .form-group { margin-bottom: 14px; text-align: left; }
+    label { display: block; font-size: 12px; color: #555; margin-bottom: 4px; font-weight: bold; }
+    input { width: 100%; padding: 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
     input:focus { border-color: #007bff; }
 
     .btn-submit { 
@@ -31,76 +31,91 @@
     }
     .btn-submit:hover { background-color: #218838; }
 
-    .admin-credentials { background: #e8f4fd; border: 1px solid #b6d4fe; padding: 12px; border-radius: 8px; font-size: 12px; color: #084298; margin-bottom: 20px; text-align: left; }
-    .admin-credentials strong { display: block; margin-bottom: 4px; font-size: 13px; }
+    .admin-box { background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 8px; font-size: 11px; color: #084298; margin-bottom: 15px; text-align: left; }
 
-    .divider { border-top: 1px solid #eee; margin: 20px 0; position: relative; }
+    .divider { border-top: 1px solid #eee; margin: 18px 0; position: relative; }
     .divider span { background: white; padding: 0 10px; color: #888; font-size: 12px; position: relative; top: -10px; }
 
     .btn-tablet { 
       display: inline-block; 
       background-color: #007bff; 
       color: white; 
-      padding: 14px 20px; 
+      padding: 13px; 
       border-radius: 8px; 
       text-decoration: none; 
       font-weight: bold; 
-      font-size: 15px;
+      font-size: 14px;
       width: 100%;
       box-shadow: 0 4px 10px rgba(0,123,255,0.2);
     }
     .btn-tablet:hover { background-color: #0056b3; }
 
-    .actions-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 15px; }
-    .actions-row a { color: #007bff; text-decoration: none; }
-    .actions-row a:hover { text-decoration: underline; }
+    .row-links { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 15px; }
+    .row-links a { color: #007bff; text-decoration: none; }
+    .row-links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <h1>Frequência Escolar</h1>
-    <p>Acesse com sua conta ou utilize o painel administrativo</p>
+    <p>Entre com sua conta ou acesse o terminal</p>
     
-    <!-- Bloco com as credenciais do Administrador -->
-    <div class="admin-credentials">
-      <strong>⚙️ Acesso Administrativo Padrão:</strong>
-      Usuário: <code>admin</code><br>
-      Senha configurada no sistema
+    <!-- Dados do Administrador -->
+    <div class="admin-box">
+      <strong>⚙️ Acesso Admin Padrão:</strong>
+      Login: <code>ADM1</code> | Senha: <code>ADM2</code>
     </div>
 
-    <!-- Formulário original de Login -->
-    <form id="loginForm">
+    <!-- Formulário de Login -->
+    <form id="loginForm" onsubmit="realizarLogin(event)">
       <div class="form-group">
-        <label>E-mail ou Usuário</label>
-        <input type="text" id="usuario" placeholder="Seu usuário ou e-mail" required>
+        <label>Usuário ou E-mail</label>
+        <input type="text" id="userInput" placeholder="Digite ADM1 ou seu e-mail" required>
       </div>
 
       <div class="form-group">
         <label>Senha</label>
-        <input type="password" id="senha" placeholder="Sua senha" required>
+        <input type="password" id="passInput" placeholder="Digite ADM2 ou sua senha" required>
       </div>
 
-      <div class="actions-row">
-        <label style="font-weight: normal; display: flex; align-items: center; gap: 5px; cursor: pointer;">
-          <input type="checkbox" style="width: auto;"> Lembrar de mim
+      <div class="row-links">
+        <label style="font-weight: normal; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+          <input type="checkbox" style="width: auto;"> Lembrar
         </label>
-        <a href="#" onclick="alert('Funcionalidade de recuperação/criação de conta.'); return false;">Criar conta / Ajuda</a>
+        <!-- Link real que agora direciona para a página de cadastrar o filho/conta -->
+        <a href="app-pais/cadastro.html" id="linkCadastro">Criar conta / Cadastrar Filho</a>
       </div>
 
       <button type="submit" class="btn-submit">Entrar no Sistema</button>
     </form>
 
     <div class="divider">
-      <span>OU TERMINAL</span>
+      <span>OU</span>
     </div>
     
-    <!-- Botão atualizado que direciona para a verificação de código de sala do tablet -->
+    <!-- Botão do Tablet que leva para a verificação do código da sala -->
     <a href="tablet.html" class="btn-tablet">
       📱 Acessar Painel do Tablet
     </a>
   </div>
 
+  <script>
+    function realizarLogin(event) {
+      event.preventDefault();
+      const user = document.getElementById('userInput').value.trim();
+      const pass = document.getElementById('passInput').value.trim();
+
+      // Verifica se usou o login de Administrador
+      if (user === 'ADM1' && pass === 'ADM2') {
+        alert('Login de Administrador autorizado com sucesso!');
+        window.location.href = 'painel-admin/index.html'; // Altere para a pasta correta do painel adm se necessário
+      } else {
+        // Se for um pais/responsável comum, redireciona para a tela de cadastrar o filho
+        window.location.href = 'app-pais/index.html'; 
+      }
+    }
+  </script>
+
 </body>
 </html>
-
