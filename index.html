@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; position: relative; }
-    .gear-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; text-decoration: none; background: #ddd; padding: 10px; border-radius: 50%; }
+    .gear-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; text-decoration: none; background: #ddd; padding: 10px; border-radius: 50%; z-index: 10; }
     .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
     h2 { margin-bottom: 20px; color: #333; }
     .input-group { margin-bottom: 15px; text-align: left; }
@@ -80,7 +80,7 @@
         if (response.ok) {
           window.location.href = './app-pais/';
         } else {
-          alert(data.mensagem); // Avisa se o e-mail já existe ao tentar cadastrar
+          alert(data.mensagem);
         }
       } catch (err) {
         alert('Erro ao conectar com o servidor.');
