@@ -13,8 +13,6 @@
     label { display: block; margin-bottom: 5px; font-size: 14px; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
     button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .notificacao { border-left: 5px solid #007bff; padding: 15px; background: #e9f5ff; border-radius: 6px; margin-top: 10px; }
-    .foto-aluno { width: 100%; max-width: 200px; border-radius: 8px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -43,48 +41,6 @@
     <div id="avisos"><p style="color: #777;">Nenhum registro ainda.</p></div>
   </div>
 
-  <script>
-    const API_URL = 'https://frequencia-escolar-online.onrender.com';
-
-    document.getElementById('form-aluno').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nome = document.getElementById('nome').value;
-      const cpf = document.getElementById('cpf').value;
-      const turma = document.getElementById('turma').value;
-
-      const response = await fetch(`${API_URL}/api/cadastrar-aluno`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, cpf, turma })
-      });
-
-      const data = await response.json();
-      alert(data.mensagem);
-      if (response.ok) {
-        document.getElementById('form-aluno').reset();
-        iniciarMonitoramento(cpf);
-      }
-    });
-
-    function iniciarMonitoramento(cpf) {
-      setInterval(async () => {
-        const res = await fetch(`${API_URL}/api/presenca/${cpf}`);
-        const data = await res.json();
-        if (data.registros && data.registros.length > 0) {
-          const avisosDiv = document.getElementById('avisos');
-          avisosDiv.innerHTML = '';
-          data.registros.forEach(r => {
-            avisosDiv.innerHTML += `
-              <div class="notificacao">
-                <p><strong>Status:</strong> ${r.mensagem}</p>
-                <p><strong>Horário:</strong> ${r.horario}</p>
-                ${r.foto ? `<img src="${r.foto}" class="foto-aluno">` : ''}
-              </div>
-            `;
-          });
-        }
-      }, 3000);
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
