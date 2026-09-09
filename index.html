@@ -1,103 +1,30 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frequência Escolar - Login</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; }
-    .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-    h2 { margin-bottom: 20px; color: #333; }
-    .input-group { margin-bottom: 15px; text-align: left; }
-    label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
-    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-    button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
-    button:hover { background-color: #0056b3; }
-    .divider { margin: 20px 0; color: #888; font-size: 14px; }
-    .google-btn { background-color: #fff; color: #555; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .google-btn:hover { background-color: #f1f1f1; }
-    .toggle-link { margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; display: inline-block; }
-  </style>
-</head>
-<body>
+document.getElementById('auth-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const senha = document.getElementById('senha').value;
+  const nome = document.getElementById('nome').value;
 
-  <div class="container">
-    <h2 id="form-title">Acessar Conta</h2>
+  const endpoint = isCadastro ? '/api/cadastro' : '/api/login';
+  const payload = isCadastro ? { nome, email, senha } : { email, senha };
 
-    <form id="auth-form">
-      <div class="input-group" id="nome-group" style="display: none;">
-        <label>Nome Completo</label>
-        <input type="text" id="nome" placeholder="Seu nome">
-      </div>
-
-      <div class="input-group">
-        <label>E-mail</label>
-        <input type="email" id="email" required placeholder="seuemail@exemplo.com">
-      </div>
-
-      <div class="input-group">
-        <label>Senha</label>
-        <input type="password" id="senha" required placeholder="********">
-      </div>
-
-      <button type="submit" id="btn-submit">Entrar</button>
-    </form>
-
-    <div class="divider">ou</div>
-
-    <!-- Botão de Login com Google -->
-    <button class="google-btn" onclick="loginComGoogle()">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
-      Entrar com o Google
-    </button>
-
-    <span class="toggle-link" id="toggle-btn" onclick="alternarModo()">Não tem uma conta? Cadastre-se</span>
-  </div>
-
-  <script>
-    const API_URL = 'https://frequencia-escolar-online.onrender.com';
-    let isCadastro = false;
-
-    function alternarModo() {
-      isCadastro = !isCadastro;
-      document.getElementById('form-title').innerText = isCadastro ? 'Criar Conta' : 'Acessar Conta';
-      document.getElementById('btn-submit').innerText = isCadastro ? 'Cadastrar' : 'Entrar';
-      document.getElementById('nome-group').style.display = isCadastro ? 'block' : 'none';
-      document.getElementById('toggle-btn').innerText = isCadastro ? 'Já tem uma conta? Faça Login' : 'Não tem uma conta? Cadastre-se';
-    }
-
-    document.getElementById('auth-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
-      const nome = document.getElementById('nome').value;
-
-      const endpoint = isCadastro ? '/api/cadastro' : '/api/login';
-      const payload = isCadastro ? { nome, email, senha } : { email, senha };
-
-      try {
-        const response = await fetch(`${API_URL}${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          alert(isCadastro ? 'Cadastro realizado com sucesso!' : 'Login efetuado!');
-        } else {
-          alert('Erro: ' + (data.mensagem || 'Falha na requisição'));
-        }
-      } catch (err) {
-        alert('Erro ao conectar com o servidor.');
-      }
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
 
-    function loginComGoogle() {
-      // Redireciona para a rota OAuth de login do Google no seu backend
-      window.location.href = `${API_URL}/auth/google`;
+    const data = await response.json();
+    if (response.ok) {
+      alert(isCadastro ? 'Cadastro realizado com sucesso!' : 'Login efetuado!');
+      
+      // REDIRECIONAMENTO AQUI:
+      // Troque 'painel-admin/index.html' pelo caminho exato do seu painel no GitHub
+      window.location.href = 'painel-admin/index.html'; 
+    } else {
+      alert('Erro: ' + (data.mensagem || 'Falha na requisição'));
     }
-  </script>
-</body>
-</html>
+  } catch (err) {
+    alert('Erro ao conectar com o servidor.');
+  }
+});
