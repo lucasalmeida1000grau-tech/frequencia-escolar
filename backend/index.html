@@ -23,7 +23,7 @@
             <input type="password" id="login-senha" placeholder="Digite sua senha" style="width: 100%; padding: 12px; margin: 6px 0 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" required><br>
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 13px;">
-                <label style="display: flex; align-items: center; color: #55f; cursor: pointer;">
+                <label style="display: flex; align-items: center; color: #555; cursor: pointer;">
                     <input type="checkbox" style="margin-right: 5px;"> Lembrar
                 </label>
                 <a href="cadastro.html" style="color: #007BFF; text-decoration: none;">Criar conta</a>
@@ -42,9 +42,6 @@
     <script>
         function fazerLogin(event) {
             event.preventDefault();
-            const usuario = document.getElementById("login-usuario").value;
-            
-            // Redireciona para o painel do usuário após logar
             window.location.href = "painel-usuario.html";
         }
     </script>
