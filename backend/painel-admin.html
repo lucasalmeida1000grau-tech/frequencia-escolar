@@ -2,35 +2,56 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Administrador</title>
+    <title>Painel do Administrador</title>
 </head>
-<body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0;">
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px;">
-        <h2>Acesso Restrito - Admin</h2>
-        <form onsubmit="validarLoginAdmin(event)">
-            <label>Usuário:</label><br>
-            <input type="text" id="usuario-adm" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
-            
-            <label>Senha:</label><br>
-            <input type="password" id="senha-adm" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
-            
-            <button type="submit" style="width: 100%; background: #28a745; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Entrar</button>
-        </form>
+    <div style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2>Painel Geral - Administrador</h2>
+        <p style="color: #666;">Lista completa de presenças registradas no sistema:</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr style="background: #007BFF; color: white; text-align: left;">
+                    <th style="padding: 10px; border: 1px solid #ddd;">Nome</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">CPF</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Data e Hora</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-admin">
+                <tr>
+                    <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: center;">Nenhum registro encontrado.</td>
+                </tr>
+            </tbody>
+        </table>
+
         <br>
-        <a href="index.html" style="font-size: 13px; color: #666; text-decoration: none;">← Voltar para a página inicial</a>
+        <button onclick="limparHistorico()" style="background: #dc3545; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Limpar Registros</button>
+        <br><br>
+        <a href="index.html" style="font-size: 13px; color: #007BFF; text-decoration: none;">← Sair para a página inicial</a>
     </div>
 
     <script>
-        function validarLoginAdmin(event) {
-            event.preventDefault();
-            const usuario = document.getElementById("usuario-adm").value;
-            const senha = document.getElementById("senha-adm").value;
+        const historico = JSON.parse(localStorage.getItem("historico_frequencia")) || [];
+        const tabela = document.getElementById("tabela-admin");
 
-            if (usuario === "ADM1" && senha === "ADM2") {
-                window.location.href = "painel-admin.html";
-            } else {
-                alert("Usuário ou senha incorretos! Use ADM1 e ADM2.");
+        if (historico.length > 0) {
+            tabela.innerHTML = "";
+            historico.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="padding: 10px; border: 1px solid #ddd;">${item.nome}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${item.cpf}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${item.data}</td>
+                `;
+                tabela.appendChild(tr);
+            });
+        }
+
+        function limparHistorico() {
+            if (confirm("Deseja realmente apagar todos os registros de presença?")) {
+                localStorage.removeItem("historico_frequencia");
+                location.reload();
             }
         }
     </script>
