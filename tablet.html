@@ -1,3 +1,57 @@
 <div style="position: absolute; top: 10px; right: 10px;">
     <button onclick="sairDaSala()" style="background-color: #d9534f; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">Sair da Sala</button>
 </div>
+// Ao carregar a página do tablet
+window.onload = function() {
+    const salaSalva = localStorage.getItem("codigoSalaAtual");
+    if (salaSalva) {
+        // Se já tem sala, esconde a tela de digitar código e mostra a tela de chamada
+        document.getElementById("tela-login-sala").style.display = "none";
+        document.getElementById("tela-chamada").style.display = "block";
+        document.getElementById("exibe-sala").innerText = "Sala: " + salaSalva;
+    } else {
+        // Se não tem, mostra para digitar
+        document.getElementById("tela-login-sala").style.display = "block";
+        document.getElementById("tela-chamada").style.display = "none";
+    }
+};
+
+// Função para salvar a sala quando o adm digitar o código pela primeira vez
+function salvarCodigoSala() {
+    const codigo = document.getElementById("input-codigo-sala").value;
+    if (codigo.trim() !== "") {
+        localStorage.setItem("codigoSalaAtual", codigo);
+        location.reload(); // Recarrega para fixar a tela
+    } else {
+        alert("Digite um código de sala válido!");
+    }
+}
+
+// Botão de sair (só sai quando clicar aqui, permitindo trocar de tablet/sala)
+function sairDaSala() {
+    localStorage.removeItem("codigoSalaAtual");
+    location.reload(); // Volta para a tela de digitar o código
+}
+
+// Função que é executada quando o aluno bate o ponto (envia foto e horário)
+function registrarPresencaDoAluno(cpfDoAluno, urlDaFotoCapturada) {
+    const dataHoje = new Date().toLocaleDateString('pt-BR');
+    const horaAgora = new Date().toLocaleTimeString('pt-BR');
+
+    const novoRegistro = {
+        data: dataHoje,
+        hora: horaAgora,
+        foto: urlDaFotoCapturada // Foto tirada na hora pelo tablet
+    };
+
+    // Pega o histórico antigo desse aluno específico ou cria uma lista vazia
+    let historicoAntigo = JSON.parse(localStorage.getItem("historico_" + cpfDoAluno)) || [];
+
+    // Adiciona o novo registro no topo da lista
+    historicoAntigo.unshift(novoRegistro);
+
+    // Salva de volta no navegador vinculado ao CPF do aluno
+    localStorage.setItem("historico_" + cpfDoAluno, JSON.stringify(historicoAntigo));
+
+    alert("Presença registrada com sucesso!");
+}
