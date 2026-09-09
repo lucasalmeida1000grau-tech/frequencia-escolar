@@ -9,7 +9,10 @@
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     .card { background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
     h1 { color: #333; margin-bottom: 10px; font-size: 24px; }
-    p { color: #666; margin-bottom: 30px; font-size: 14px; }
+    p { color: #666; margin-bottom: 25px; font-size: 14px; line-height: 1.5; }
+    .welcome-text { margin-bottom: 20px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; }
+    .welcome-text h3 { font-size: 16px; color: #333; margin-bottom: 5px; }
+    .welcome-text p { margin-bottom: 0; font-size: 13px; color: #555; }
     .btn-tablet { 
       display: inline-block; 
       background-color: #007bff; 
@@ -21,6 +24,7 @@
       font-size: 16px;
       width: 100%;
       box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+      transition: background-color 0.2s;
     }
     .btn-tablet:hover { background-color: #0056b3; }
   </style>
@@ -28,8 +32,14 @@
 <body>
 
   <div class="card">
-    <h1>Bem-vindo ao Sistema</h1>
-    <p>Selecione a opção desejada para continuar</p>
+    <h1>Frequência Escolar</h1>
+    <p>Sistema de controle de presença online integrado.</p>
+    
+    <!-- Espaço para as informações anteriores que você tinha -->
+    <div class="welcome-text">
+      <h3>Bem-vindo ao sistema!</h3>
+      <p>Aqui você pode gerenciar os acessos, realizar chamadas e acompanhar o fluxo de presença dos alunos.</p>
+    </div>
     
     <!-- Botão de acesso direto ao tablet -->
     <a href="tablet.html" class="btn-tablet">
@@ -39,3 +49,4 @@
 
 </body>
 </html>
+
