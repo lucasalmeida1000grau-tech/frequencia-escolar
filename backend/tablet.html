@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Tablet - Registro de Presença</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
+
+    <!-- Botão de Sair da Sala (Fica oculto na tela de login e aparece quando entra na sala) -->
+    <div id="div-botao-sair" style="display: none; text-align: right; margin-bottom: 15px;">
+        <button onclick="sairDaSala()" style="background: #d9534f; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Sair da Sala</button>
+    </div>
+
+    <!-- Tela 1: Digitar o código da sala pela primeira vez -->
+    <div id="tela-login-sala" style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2>Configurar Sala do Tablet</h2>
+        <p>Digite o código da sala para fixar este tablet:</p>
+        <input type="text" id="input-codigo-sala" placeholder="Ex: Sala 2A" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;"><br>
+        <button onclick="salvarSala()" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Entrar na Sala</button>
+    </div>
+
+    <!-- Tela 2: Tela de chamada/registro do aluno -->
+    <div id="tela-chamada" style="display: none; max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2 id="titulo-sala">Sala: -</h2>
+        <p>Câmera ativa para leitura de presença:</p>
+        
+        <!-- Elemento de vídeo simulado ou real da câmera -->
+        <video id="video-camera" autoplay playsinline style="width: 100%; height: 200px; background: #000; border-radius: 4px; object-fit: cover;"></video>
+        
+        <button onclick="registrarPresencaComFoto('45870857821')" style="width: 100%; background: #28a745; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px; font-weight: bold;">Registrar Aluno (Lucas Lima)</button>
+    </div>
+
+    <script>
+        // Ao carregar a página, verifica se já existe uma sala salva na memória
+        window.onload = function() {
+            const salaSalva = localStorage.getItem("salaFixaTablet");
+            
+            if (salaSalva) {
+                // Trava na tela de chamada e esconde o login da sala
+                document.getElementById("tela-login-sala").style.display = "none";
+                document.getElementById("tela-chamada").style.display = "block";
+                document.getElementById("div-botao-sair").style.display = "block";
+                document.getElementById("titulo-salainnerText", "Sala: " + salaSalva);
+                document.getElementById("titulo-sala").innerText = "Sala: " + salaSalva;
+                
+                // Tenta ligar a câmera do tablet
+                iniciarCamera();
+            } else {
+                // Mostra a tela para digitar o código
+                document.getElementById("tela-login-sala").style.display = "block";
+                document.getElementById("tela-chamada").style.display = "none";
+                document.getElementById("div-botao-sair").style.display = "none";
+            }
+        };
+
+        // Salva a sala permanentemente no navegador até que o botão de sair seja clicado
+        function salvarSala() {
+            const codigo = document.getElementById("input-codigo-sala").value;
+            if (codigo.trim() !== "") {
+                localStorage.setItem("salaFixaTablet", codigo);
+                location.reload(); // Recarrega para aplicar o estado fixo
+            } else {
+                alert("Digite um código de sala válido!");
+            }
+        }
+
+        // Botão de sair: único jeito de limpar a memória e voltar a pedir o código da sala
+        function sairDaSala() {
+            if (confirm("Deseja realmente deslogar este tablet da sala?")) {
+                localStorage.removeItem("salaFixaTablet");
+                location.reload();
+            }
+        }
+
+        // Função para ativar a câmera no tablet
+        function iniciarCamera() {
+            const video = document.getElementById("video-camera");
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(error => {
+                    console.log("Câmera não iniciada automaticamente ou indisponível:", error);
+                });
+        }
+
+        // Função que tira a foto e envia para o histórico do aluno vinculado
+        function registrarPresencaComFoto(cpfAluno) {
+            const video = document.getElementById("video-camera");
+            const canvas = document.createElement("canvas");
+            canvas.width = 320;
+            canvas.height = 240;
+            const contexto = canvas.getContext("2d");
+            contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const urlDaFoto = canvas.toDataURL("image/png");
+
+            const agora = new Date();
+            const dataFormatada = agora.toLocaleDateString('pt-BR');
+            const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const novoRegistro = {
+                data: dataFormatada,
+                hora: horaFormatada,
+                foto: urlDaFoto
+            };
+
+            let historicoAluno = JSON.parse(localStorage.getItem("historico_" + cpfAluno)) || [];
+            historicoAluno.unshift(novoRegistro);
+            localStorage.setItem("historico_" + cpfAluno, JSON.stringify(historicoAluno));
+
+            alert("Presença registrada com sucesso! Foto e horário enviados.");
+        }
+    </script>
+</body>
+</html>
