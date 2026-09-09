@@ -7,13 +7,13 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
-    h1 { color: #333; margin-bottom: 6px; font-size: 22px; }
-    p { color: #666; margin-bottom: 20px; font-size: 13px; }
+    .card { background: white; padding: 35px 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+    h1 { color: #333; margin-bottom: 8px; font-size: 22px; }
+    p { color: #666; margin-bottom: 25px; font-size: 13px; }
     
-    .form-group { margin-bottom: 14px; text-align: left; }
-    label { display: block; font-size: 12px; color: #555; margin-bottom: 4px; font-weight: bold; }
-    input { width: 100%; padding: 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    label { display: block; font-size: 12px; color: #555; margin-bottom: 6px; font-weight: bold; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
     input:focus { border-color: #007bff; }
 
     .btn-submit { 
@@ -27,20 +27,18 @@
       width: 100%; 
       cursor: pointer;
       margin-top: 5px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
     .btn-submit:hover { background-color: #218838; }
 
-    .admin-box { background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 8px; font-size: 11px; color: #084298; margin-bottom: 15px; text-align: left; }
-
-    .divider { border-top: 1px solid #eee; margin: 18px 0; position: relative; }
+    .divider { border-top: 1px solid #eee; margin: 20px 0; position: relative; }
     .divider span { background: white; padding: 0 10px; color: #888; font-size: 12px; position: relative; top: -10px; }
 
     .btn-tablet { 
       display: inline-block; 
       background-color: #007bff; 
       color: white; 
-      padding: 13px; 
+      padding: 14px 20px; 
       border-radius: 8px; 
       text-decoration: none; 
       font-weight: bold; 
@@ -50,7 +48,7 @@
     }
     .btn-tablet:hover { background-color: #0056b3; }
 
-    .row-links { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 15px; }
+    .row-links { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 15px; align-items: center; }
     .row-links a { color: #007bff; text-decoration: none; }
     .row-links a:hover { text-decoration: underline; }
   </style>
@@ -59,32 +57,26 @@
 
   <div class="card">
     <h1>Frequência Escolar</h1>
-    <p>Entre com sua conta ou acesse o terminal</p>
+    <p>Faça login para continuar</p>
     
-    <!-- Dados do Administrador -->
-    <div class="admin-box">
-      <strong>⚙️ Acesso Admin Padrão:</strong>
-      Login: <code>ADM1</code> | Senha: <code>ADM2</code>
-    </div>
-
-    <!-- Formulário de Login -->
-    <form id="loginForm" onsubmit="realizarLogin(event)">
+    <!-- Formulário de Login limpo, sem mostrar a senha do ADM na tela -->
+    <form onsubmit="processarLogin(event)">
       <div class="form-group">
-        <label>Usuário ou E-mail</label>
-        <input type="text" id="userInput" placeholder="Digite ADM1 ou seu e-mail" required>
+        <label>E-mail ou Usuário</label>
+        <input type="text" id="loginUser" placeholder="Digite seu usuário ou e-mail" required>
       </div>
 
       <div class="form-group">
         <label>Senha</label>
-        <input type="password" id="passInput" placeholder="Digite ADM2 ou sua senha" required>
+        <input type="password" id="loginPass" placeholder="Digite sua senha" required>
       </div>
 
       <div class="row-links">
         <label style="font-weight: normal; display: flex; align-items: center; gap: 4px; cursor: pointer;">
           <input type="checkbox" style="width: auto;"> Lembrar
         </label>
-        <!-- Link real que agora direciona para a página de cadastrar o filho/conta -->
-        <a href="app-pais/cadastro.html" id="linkCadastro">Criar conta / Cadastrar Filho</a>
+        <!-- Apenas o botão de criar conta limpo -->
+        <a href="cadastro.html">Criar conta</a>
       </div>
 
       <button type="submit" class="btn-submit">Entrar no Sistema</button>
@@ -94,25 +86,24 @@
       <span>OU</span>
     </div>
     
-    <!-- Botão do Tablet que leva para a verificação do código da sala -->
+    <!-- Botão do Tablet -->
     <a href="tablet.html" class="btn-tablet">
       📱 Acessar Painel do Tablet
     </a>
   </div>
 
   <script>
-    function realizarLogin(event) {
+    function processarLogin(event) {
       event.preventDefault();
-      const user = document.getElementById('userInput').value.trim();
-      const pass = document.getElementById('passInput').value.trim();
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
 
-      // Verifica se usou o login de Administrador
-      if (user === 'ADM1' && pass === 'ADM2') {
-        alert('Login de Administrador autorizado com sucesso!');
-        window.location.href = 'painel-admin/index.html'; // Altere para a pasta correta do painel adm se necessário
+      // Validação oculta do Admin (ADM1 / ADM2) que leva ao painel completo de controle
+      if (u === 'ADM1' && p === 'ADM2') {
+        window.location.href = 'painel-admin.html';
       } else {
-        // Se for um pais/responsável comum, redireciona para a tela de cadastrar o filho
-        window.location.href = 'app-pais/index.html'; 
+        // Usuário comum vai direto para a tela de cadastrar o aluno/filho (CPF, turma, nome)
+        window.location.href = 'cadastro-filho.html';
       }
     }
   </script>
