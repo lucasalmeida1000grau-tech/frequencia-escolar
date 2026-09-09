@@ -3,43 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Área dos Pais - Frequência Escolar</title>
+  <title>Frequência Escolar - Login</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f4f6f9; color: #333; padding: 20px; }
-    header { background-color: #007bff; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
-    h2 { font-size: 18px; margin-bottom: 10px; color: #007bff; }
-    p { font-size: 14px; line-height: 1.5; color: #555; }
-    .btn-logout { display: inline-block; margin-top: 15px; padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .btn-logout:hover { background: #c82333; }
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; }
+    .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+    h2 { margin-bottom: 20px; color: #333; }
+    .input-group { margin-bottom: 15px; text-align: left; }
+    label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
+    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
+    button:hover { background-color: #0056b3; }
+    .divider { margin: 20px 0; color: #888; font-size: 14px; }
+    .google-btn { background-color: #fff; color: #555; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-btn:hover { background-color: #f1f1f1; }
+    .toggle-link { margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; display: inline-block; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Painel do Responsável</h1>
-    <p>Acompanhamento de Frequência Escolar</p>
-  </header>
+  <div class="container">
+    <h2 id="form-title">Acessar Conta</h2>
 
-  <div class="card">
-    <h2>Bem-vindo(a)!</h2>
-    <p>Acompanhe aqui o registro de presença do aluno.</p>
+    <form id="auth-form">
+      <div class="input-group" id="nome-group" style="display: none;">
+        <label>Nome Completo</label>
+        <input type="text" id="nome" placeholder="Seu nome">
+      </div>
+
+      <div class="input-group">
+        <label>E-mail</label>
+        <input type="email" id="email" required placeholder="seuemail@exemplo.com">
+      </div>
+
+      <div class="input-group">
+        <label>Senha</label>
+        <input type="password" id="senha" required placeholder="********">
+      </div>
+
+      <button type="submit" id="btn-submit">Entrar</button>
+    </form>
+
+    <div class="divider">ou</div>
+
+    <button class="google-btn" onclick="loginComGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
+      Entrar com o Google
+    </button>
+
+    <span class="toggle-link" id="toggle-btn" onclick="alternarModo()">Não tem uma conta? Cadastre-se</span>
   </div>
-
-  <div id="conteudo-principal" class="card">
-    <h2>Frequência Recente</h2>
-    <p id="status-frequencia">Carregando dados...</p>
-  </div>
-
-  <button class="btn-logout" onclick="sair()">Sair da Conta</button>
-
-  <!-- Carrega a lógica que já está na pasta app-pais -->
-  <script src="app.js"></script>
 
   <script>
-    function sair() {
-      window.location.href = '../index.html';
+    const API_URL = 'https://frequencia-escolar-online.onrender.com';
+    let isCadastro = false;
+
+    function alternarModo() {
+      isCadastro = !isCadastro;
+      document.getElementById('form-title').innerText = isCadastro ? 'Criar Conta' : 'Acessar Conta';
+      document.getElementById('btn-submit').innerText = isCadastro ? 'Cadastrar' : 'Entrar';
+      document.getElementById('nome-group').style.display = isCadastro ? 'block' : 'none';
+      document.getElementById('toggle-btn').innerText = isCadastro ? 'Já tem uma conta? Faça Login' : 'Não tem uma conta? Cadastre-se';
+    }
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const nome = document.getElementById('nome').value;
+
+      const endpoint = isCadastro ? '/api/cadastro' : '/api/login';
+      const payload = isCadastro ? { nome, email, senha } : { email, senha };
+
+      try {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          // Redireciona para o painel de cadastro do aluno
+          window.location.href = 'app-pais/index.html';
+        } else {
+          alert('Erro: ' + (data.mensagem || 'Falha na requisição'));
+        }
+      } catch (err) {
+        alert('Erro ao conectar com o servidor.');
+      }
+    });
+
+    function loginComGoogle() {
+      window.location.href = `${API_URL}/auth/google`;
     }
   </script>
 </body>
