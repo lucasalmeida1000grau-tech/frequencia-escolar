@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frequência Escolar - Login</title>
+  <title>Frequência Escolar - Sistema</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     .card { background: white; padding: 35px 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
     h1 { color: #333; margin-bottom: 8px; font-size: 22px; }
-    p { color: #666; margin-bottom: 24px; font-size: 13px; }
+    p { color: #666; margin-bottom: 20px; font-size: 13px; }
     
-    .form-group { margin-bottom: 16px; text-align: left; }
-    label { display: block; font-size: 12px; color: #555; margin-bottom: 6px; font-weight: bold; }
-    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-group { margin-bottom: 15px; text-align: left; }
+    label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
     input:focus { border-color: #007bff; }
 
     .btn-submit { 
@@ -27,12 +27,12 @@
       width: 100%; 
       cursor: pointer;
       margin-top: 5px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
     .btn-submit:hover { background-color: #218838; }
 
-    .admin-info { background: #e9ecef; padding: 10px; border-radius: 6px; font-size: 12px; color: #495057; margin-bottom: 20px; text-align: left; }
-    .admin-info strong { color: #212529; }
+    .admin-credentials { background: #e8f4fd; border: 1px solid #b6d4fe; padding: 12px; border-radius: 8px; font-size: 12px; color: #084298; margin-bottom: 20px; text-align: left; }
+    .admin-credentials strong { display: block; margin-bottom: 4px; font-size: 13px; }
 
     .divider { border-top: 1px solid #eee; margin: 20px 0; position: relative; }
     .divider span { background: white; padding: 0 10px; color: #888; font-size: 12px; position: relative; top: -10px; }
@@ -41,57 +41,61 @@
       display: inline-block; 
       background-color: #007bff; 
       color: white; 
-      padding: 12px 20px; 
+      padding: 14px 20px; 
       border-radius: 8px; 
       text-decoration: none; 
       font-weight: bold; 
-      font-size: 14px;
+      font-size: 15px;
       width: 100%;
       box-shadow: 0 4px 10px rgba(0,123,255,0.2);
     }
     .btn-tablet:hover { background-color: #0056b3; }
 
-    .links { margin-top: 15px; font-size: 12px; }
-    .links a { color: #007bff; text-decoration: none; }
-    .links a:hover { text-decoration: underline; }
+    .actions-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 15px; }
+    .actions-row a { color: #007bff; text-decoration: none; }
+    .actions-row a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <h1>Frequência Escolar</h1>
-    <p>Faça login ou acesse os recursos do sistema</p>
+    <p>Acesse com sua conta ou utilize o painel administrativo</p>
     
-    <!-- Informações do Adm Cadastrado -->
-    <div class="admin-info">
-      <strong>Painel Administrativo:</strong><br>
-      Utilize as credenciais de Administrador padrão para gerenciar o sistema.
+    <!-- Bloco com as credenciais do Administrador -->
+    <div class="admin-credentials">
+      <strong>⚙️ Acesso Administrativo Padrão:</strong>
+      Usuário: <code>admin</code><br>
+      Senha configurada no sistema
     </div>
 
-    <!-- Formulário de Login / Criar Conta -->
-    <form onsubmit="event.preventDefault(); alert('Funcionalidade de login integrada ao backend.');">
+    <!-- Formulário original de Login -->
+    <form id="loginForm">
       <div class="form-group">
         <label>E-mail ou Usuário</label>
-        <input type="text" placeholder="Digite seu usuário ou e-mail" required>
+        <input type="text" id="usuario" placeholder="Seu usuário ou e-mail" required>
       </div>
 
       <div class="form-group">
         <label>Senha</label>
-        <input type="password" placeholder="Digite sua senha" required>
+        <input type="password" id="senha" placeholder="Sua senha" required>
       </div>
 
-      <button type="submit" class="btn-submit">Entrar na Conta</button>
+      <div class="actions-row">
+        <label style="font-weight: normal; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+          <input type="checkbox" style="width: auto;"> Lembrar de mim
+        </label>
+        <a href="#" onclick="alert('Funcionalidade de recuperação/criação de conta.'); return false;">Criar conta / Ajuda</a>
+      </div>
+
+      <button type="submit" class="btn-submit">Entrar no Sistema</button>
     </form>
 
-    <div class="links">
-      <a href="#">Cadastrar nova conta</a>
-    </div>
-
     <div class="divider">
-      <span>OU</span>
+      <span>OU TERMINAL</span>
     </div>
     
-    <!-- Botão exclusivo para o tablet -->
+    <!-- Botão atualizado que direciona para a verificação de código de sala do tablet -->
     <a href="tablet.html" class="btn-tablet">
       📱 Acessar Painel do Tablet
     </a>
@@ -99,3 +103,4 @@
 
 </body>
 </html>
+
