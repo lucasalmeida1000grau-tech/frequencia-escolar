@@ -1,90 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Criar Conta - Frequência Escolar</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-    h2 { color: #333; margin-bottom: 20px; text-align: center; font-size: 20px; }
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 12px; color: #555; margin-bottom: 4px; font-weight: bold; }
-    input { width: 100%; padding: 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
-    input:focus { border-color: #007bff; }
-    .btn-submit { background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; margin-top: 10px; }
-    .btn-submit:hover { background-color: #218838; }
-    .back-link { display: block; text-align: center; margin-top: 15px; font-size: 12px; color: #007bff; text-decoration: none; }
-    .back-link:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Cadastro - Sistema Escolar</title>
 </head>
-<body>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-  <div class="card">
-    <h2>Criar Conta e Cadastrar Aluno</h2>
-    
-    <form onsubmit="salvarCadastro(event)">
-      <div class="form-group">
-        <label>E-mail de Acesso</label>
-        <input type="email" id="emailResp" placeholder="seu@email.com" required>
-      </div>
+    <div style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2>Cadastro de Aluno e Responsável</h2>
+        
+        <form onsubmit="realizarCadastro(event)">
+            <label>Nome do Aluno:</label><br>
+            <input type="text" id="cad-nome" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
+            
+            <label>CPF do Aluno (somente números):</label><br>
+            <input type="text" id="cad-cpf" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
+            
+            <label>Turma:</label><br>
+            <input type="text" id="cad-turma" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
+            
+            <label>E-mail do Responsável:</label><br>
+            <input type="email" id="cad-email" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
+            
+            <button type="submit" style="width: 100%; background: #28a745; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Cadastrar</button>
+        </form>
+        <br>
+        <a href="index.html" style="font-size: 13px; color: #007BFF; text-decoration: none;">← Voltar para a página inicial</a>
+    </div>
 
-      <div class="form-group">
-        <label>Senha</label>
-        <input type="password" id="senhaResp" placeholder="Crie uma senha" required>
-      </div>
+    <script>
+        function realizarCadastro(event) {
+            event.preventDefault();
+            const nome = document.getElementById("cad-nome").value;
+            const cpf = document.getElementById("cad-cpf").value.trim();
+            const turma = document.getElementById("cad-turma").value;
+            const email = document.getElementById("cad-email").value;
 
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            localStorage.setItem("aluno_nome", nome);
+            localStorage.setItem("aluno_cpf", cpf);
+            localStorage.setItem("aluno_turma", turma);
+            localStorage.setItem("responsavel_email", email);
 
-      <div class="form-group">
-        <label>Nome Completo do Aluno</label>
-        <input type="text" id="nomeAluno" placeholder="Nome do aluno" required>
-      </div>
-
-      <div class="form-group">
-        <label>CPF do Aluno</label>
-        <input type="text" id="cpfAluno" placeholder="000.000.000-00" required>
-      </div>
-
-      <div class="form-group">
-        <label>Turma</label>
-        <input type="text" id="turmaAluno" placeholder="Ex: 1º Ano A" required>
-      </div>
-
-      <button type="submit" class="btn-submit">Salvar e Concluir Cadastro</button>
-    </form>
-
-    <a href="index.html" class="back-link">Voltar para o Login</a>
-  </div>
-
-  <script>
-    function salvarCadastro(event) {
-      event.preventDefault();
-      
-      const email = document.getElementById('emailResp').value.trim();
-      const senha = document.getElementById('senhaResp').value.trim();
-      const nome = document.getElementById('nomeAluno').value.trim();
-      const cpf = document.getElementById('cpfAluno').value.trim();
-      const turma = document.getElementById('turmaAluno').value.trim();
-
-      const dadosConta = { email, senha, nome, cpf, turma, isAdmin: false };
-      let contasSalvas = JSON.parse(localStorage.getItem('listaContas') || '[]');
-      
-      const existe = contasSalvas.find(c => c.email === email);
-      if (existe) {
-        alert('Este e-mail já possui conta cadastrada!');
-        window.location.href = 'index.html';
-        return;
-      }
-
-      contasSalvas.push(dadosConta);
-      localStorage.setItem('listaContas', JSON.stringify(contasSalvas));
-
-      alert('Conta criada com sucesso! Faça login.');
-      window.location.href = 'index.html';
-    }
-  </script>
-
+            alert("Cadastro realizado com sucesso!");
+            window.location.href = "index.html";
+        }
+    </script>
 </body>
 </html>
