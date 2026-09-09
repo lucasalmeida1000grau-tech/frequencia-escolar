@@ -11,20 +11,28 @@
     h2 { margin-bottom: 10px; color: #fff; }
     p { color: #aaa; font-size: 14px; margin-bottom: 15px; }
     video, canvas { width: 100%; border-radius: 8px; background: #000; margin: 10px 0; }
-    input { width: 100%; padding: 14px; font-size: 20px; text-align: center; border-radius: 6px; border: 2px solid #444; background: #333; color: white; margin-bottom: 15px; letter-spacing: 2px; }
-    input:focus { border-color: #28a745; outline: none; }
-    button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    input { width: 100%; padding: 14px; font-size: 18px; text-align: center; border-radius: 6px; border: 2px solid #444; background: #333; color: white; margin-bottom: 15px; }
+    button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; }
     button:hover { background: #218838; }
     #status-msg { margin-top: 15px; font-size: 16px; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div class="box">
-    <h2>Painel da Sala - Frequência</h2>
-    <p>Digite os 11 dígitos do seu CPF e bata o ponto</p>
+  <!-- Passo 1: Informar o código da sala -->
+  <div class="box" id="step-sala">
+    <h2>Configurar Tablet da Sala</h2>
+    <p>Insira o código da sala gerado pelo Administrador</p>
+    <input type="text" id="input-codigo-sala" placeholder="Ex: 7a2026">
+    <button onclick="conectarSala()">Entrar na Sala</button>
+    <div id="sala-msg" style="margin-top:10px; color:#ffc107;"></div>
+  </div>
 
-    <!-- Trava para aceitar exatamente 11 números -->
+  <!-- Passo 2: Chamada dos Alunos (Oculto até configurar a sala) -->
+  <div class="box" id="step-chamada" style="display: none;">
+    <h2 id="titulo-turma">Turma</h2>
+    <p>Digite os 11 dígitos do seu CPF</p>
+
     <input type="text" id="cpf-aluno" maxlength="11" placeholder="00000000000" oninput="this.value = this.value.replace(/\D/g, '')">
     
     <video id="video" autoplay playsinline></video>
@@ -36,23 +44,40 @@
 
   <script>
     const API_URL = 'https://frequencia-escolar-online.onrender.com';
+    let codigoTurmaAtual = '';
     const video = document.getElementById('video');
 
-    // Inicia a câmera automaticamente no tablet
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        alert("Erro ao acessar a câmera do tablet.");
+    async function conectarSala() {
+      const codigo = document.getElementById('input-codigo-sala').value;
+      const msg = document.getElementById('sala-msg');
+
+      const res = await fetch(`${API_URL}/api/tablet/validar-sala`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo })
       });
+
+      const data = await res.json();
+      if (res.ok) {
+        codigoTurmaAtual = codigo;
+        document.getElementById('titulo-turma').innerText = `Turma: ${data.turma}`;
+        document.getElementById('step-sala').style.display = 'none';
+        document.getElementById('step-chamada').style.display = 'block';
+
+        // Liga a câmera do tablet
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => video.srcObject = stream)
+          .catch(err => alert("Erro ao acessar a câmera."));
+      } else {
+        msg.innerText = data.mensagem;
+      }
+    }
 
     async function baterPonto() {
       const cpfInput = document.getElementById('cpf-aluno');
       const cpf = cpfInput.value;
       const statusMsg = document.getElementById('status-msg');
 
-      // Validação rigorosa dos 11 dígitos
       if (cpf.length !== 11) {
         statusMsg.style.color = '#ffc107';
         statusMsg.innerText = "O CPF precisa ter exatamente 11 dígitos!";
@@ -62,7 +87,7 @@
       statusMsg.style.color = '#fff';
       statusMsg.innerText = "Processando foto...";
 
-      // Tira a foto da câmera instantaneamente
+      // Tira a foto
       const canvas = document.getElementById('canvas');
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
@@ -70,7 +95,6 @@
       ctx.drawImage(video, 0, 0);
       const fotoBase64 = canvas.toDataURL('image/jpeg');
 
-      // Pega o horário atual (HH:MM)
       const agora = new Date();
       const horaMinuto = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
 
@@ -78,18 +102,18 @@
         const response = await fetch(`${API_URL}/api/registrar-ponto`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cpf, foto: fotoBase64, horaMinuto })
+          body: JSON.stringify({ cpf, foto: fotoBase64, horaMinuto, codigoTurma: codigoTurmaAtual })
         });
 
         const data = await response.json();
 
         if (response.ok) {
           statusMsg.style.color = '#28a745';
-          statusMsg.innerText = "Presença registrada com sucesso!";
-          cpfInput.value = ''; // Limpa o campo para o próximo aluno
+          statusMsg.innerText = data.registro.mensagem;
+          cpfInput.value = '';
         } else {
           statusMsg.style.color = '#dc3545';
-          statusMsg.innerText = data.mensagem || "Erro ao registrar.";
+          statusMsg.innerText = data.mensagem;
         }
       } catch (err) {
         statusMsg.style.color = '#dc3545';
@@ -99,3 +123,4 @@
   </script>
 </body>
 </html>
+
