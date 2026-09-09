@@ -59,7 +59,6 @@
     <h1>Frequência Escolar</h1>
     <p>Faça login para continuar</p>
     
-    <!-- Formulário de Login limpo, sem mostrar a senha do ADM na tela -->
     <form onsubmit="processarLogin(event)">
       <div class="form-group">
         <label>E-mail ou Usuário</label>
@@ -75,7 +74,6 @@
         <label style="font-weight: normal; display: flex; align-items: center; gap: 4px; cursor: pointer;">
           <input type="checkbox" style="width: auto;"> Lembrar
         </label>
-        <!-- Apenas o botão de criar conta limpo -->
         <a href="cadastro.html">Criar conta</a>
       </div>
 
@@ -86,7 +84,6 @@
       <span>OU</span>
     </div>
     
-    <!-- Botão do Tablet -->
     <a href="tablet.html" class="btn-tablet">
       📱 Acessar Painel do Tablet
     </a>
@@ -98,11 +95,10 @@
       const u = document.getElementById('loginUser').value.trim();
       const p = document.getElementById('loginPass').value.trim();
 
-      // Validação oculta do Admin (ADM1 / ADM2) que leva ao painel completo de controle
+      // Credenciais privadas do Administrador
       if (u === 'ADM1' && p === 'ADM2') {
         window.location.href = 'painel-admin.html';
       } else {
-        // Usuário comum vai direto para a tela de cadastrar o aluno/filho (CPF, turma, nome)
         window.location.href = 'cadastro-filho.html';
       }
     }
