@@ -1,47 +1,62 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Área dos Pais - Frequência Escolar</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f4f6f9; color: #333; padding: 20px; }
-    header { background-color: #007bff; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
-    h2 { font-size: 18px; margin-bottom: 10px; color: #007bff; }
-    p { font-size: 14px; line-height: 1.5; color: #555; }
-    .btn-logout { display: inline-block; margin-top: 15px; padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: bold; }
-    .btn-logout:hover { background: #c82333; }
-  </style>
-</head>
-<body>
+const API_URL = 'https://frequencia-escolar-online.onrender.com';
 
-  <header>
-    <h1>Painel do Responsável</h1>
-    <p>Acompanhamento de Frequência Escolar</p>
-  </header>
+document.addEventListener('DOMContentLoaded', () => {
+  const formAluno = document.getElementById('form-aluno');
 
-  <div class="card">
-    <h2>Bem-vindo(a)!</h2>
-    <p>Selecione seu aluno ou veja as atualizações de presença mais recentes abaixo.</p>
-  </div>
+  if (formAluno) {
+    formAluno.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value;
+      const cpf = document.getElementById('cpf').value;
+      const turma = document.getElementById('turma').value;
 
-  <div id="conteudo-principal" class="card">
-    <h2>Frequência Recente</h2>
-    <p id="status-frequencia">Carregando dados do aluno...</p>
-  </div>
+      if (cpf.length !== 11) {
+        alert('O CPF deve conter exatamente 11 dígitos.');
+        return;
+      }
 
-  <button class="btn-logout" onclick="sair()">Sair da Conta</button>
+      try {
+        const response = await fetch(`${API_URL}/api/cadastrar-aluno`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, cpf, turma })
+        });
 
-  <!-- Importa e executa o seu arquivo app.js localizado na mesma pasta -->
-  <script src="app.js"></script>
+        const data = await response.json();
+        alert(data.mensagem);
 
-  <script>
-    function sair() {
-      // Retorna para a página inicial de login
-      window.location.href = '../index.html';
+        if (response.ok) {
+          formAluno.reset();
+          iniciarMonitoramento(cpf);
+        }
+      } catch (err) {
+        alert('Erro ao conectar com o servidor.');
+      }
+    });
+  }
+});
+
+function iniciarMonitoramento(cpf) {
+  setInterval(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/presenca/${cpf}`);
+      const data = await res.json();
+      
+      const avisosDiv = document.getElementById('avisos');
+      if (avisosDiv && data.registros && data.registros.length > 0) {
+        avisosDiv.innerHTML = '';
+        data.registros.forEach(r => {
+          avisosDiv.innerHTML += `
+            <div class="notificacao" style="border-left: 5px solid #007bff; padding: 15px; background: #e9f5ff; border-radius: 6px; margin-top: 10px;">
+              <p><strong>Status:</strong> ${r.mensagem}</p>
+              <p><strong>Horário:</strong> ${r.horario}</p>
+              ${r.foto ? `<img src="${r.foto}" style="width: 100%; max-width: 200px; border-radius: 8px; margin-top: 10px;">` : ''}
+            </div>
+          `;
+        });
+      }
+    } catch (err) {
+      console.log('Aguardando registros de presença...');
     }
-  </script>
-</body>
-</html>
+  }, 3000);
+}
