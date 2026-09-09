@@ -1,14 +1,37 @@
-function validarLogin(event) {
-    event.preventDefault(); // Evita recarregar a página sozinho
-    
-    const usuario = document.getElementById("usuario").value;
-    const senha = document.getElementById("senha").value;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Administrador</title>
+</head>
+<body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9;">
 
-    // Login fixo solicitado
-    if (usuario === "ADM1" && senha === "ADM2") {
-        alert("Login de Administrador realizado com sucesso!");
-        window.location.href = "painel-admin.html"; // Vai para o painel do admin
-    } else {
-        alert("Usuário ou senha incorretos! Use ADM1 e ADM2.");
-    }
-}
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px;">
+        <h2>Login Administrador</h2>
+        <form onsubmit="validarLogin(event)">
+            <label>Usuário:</label><br>
+            <input type="text" id="usuario" style="width: 100%; padding: 8px; margin: 8px 0;" required><br>
+            
+            <label>Senha:</label><br>
+            <input type="password" id="senha" style="width: 100%; padding: 8px; margin: 8px 0;" required><br>
+            
+            <button type="submit" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Entrar</button>
+        </form>
+    </div>
+
+    <script>
+        function validarLogin(event) {
+            event.preventDefault();
+            const usuario = document.getElementById("usuario").value;
+            const senha = document.getElementById("senha").value;
+
+            if (usuario === "ADM1" && senha === "ADM2") {
+                alert("Login de Administrador realizado com sucesso!");
+                window.location.href = "painel-admin.html";
+            } else {
+                alert("Usuário ou senha incorretos! Use ADM1 e ADM2.");
+            }
+        }
+    </script>
+</body>
+</html>
