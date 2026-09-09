@@ -34,12 +34,12 @@
     <form onsubmit="fazerLogin(event)">
       <div class="form-group">
         <label>E-mail ou Usuário</label>
-        <input type="text" id="userInput" placeholder="Digite seu e-mail ou ADM1" required>
+        <input type="text" id="userInput" placeholder="Digite seu e-mail" required>
       </div>
 
       <div class="form-group">
         <label>Senha</label>
-        <input type="password" id="passInput" placeholder="Digite sua senha ou ADM2" required>
+        <input type="password" id="passInput" placeholder="Digite sua senha" required>
       </div>
 
       <div class="row-links">
@@ -67,29 +67,29 @@
       const u = document.getElementById('userInput').value.trim();
       const p = document.getElementById('passInput').value.trim();
 
-      // Verifica credenciais do Administrador
+      // 1. Verifica se é o Admin Mestre
       if (u === 'ADM1' && p === 'ADM2') {
         window.location.href = 'painel-admin.html';
         return;
       }
 
-      // Verifica contas cadastradas de responsáveis comuns
+      // 2. Busca nas contas cadastradas pelos usuários
       let contas = JSON.parse(localStorage.getItem('listaContas') || '[]');
       const encontrada = contas.find(c => c.email === u && c.senha === p);
 
-      if (encontrada || (u !== "" && p !== "")) {
-        // Salva a sessão ativa para puxar na página do usuário
-        const sessao = encontrada || { email: u, nome: "Aluno Exemplo", cpf: "000.000.000-00", turma: "1º Ano A" };
-        localStorage.setItem('sessaoAtual', JSON.stringify(sessao));
-        
-        // Se a conta for marcada como admin por outro gestor, joga pro painel adm
-        if (encontrada && encontrada.isAdmin) {
+      if (encontrada) {
+        // Salva a sessão ativa do usuário
+        localStorage.setItem('sessaoAtual', JSON.stringify(encontrada));
+
+        // Se foi promovido a admin ou é o criador, vai pro painel adm, senão vai pro painel do responsável
+        if (encontrada.isAdmin) {
           window.location.href = 'painel-admin.html';
         } else {
           window.location.href = 'painel-usuario.html';
         }
       } else {
-        alert('E-mail ou senha incorretos, ou conta não encontrada.');
+        // Bloqueia qualquer tentativa com dados falsos/não cadastrados
+        alert('Conta não encontrada! Verifique o e-mail e a senha ou clique em "Criar conta".');
       }
     }
   </script>
