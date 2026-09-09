@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Administrador - Frequência Escolar</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #f4f6f9; color: #333; padding: 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    header { background: #1e1e2f; color: white; padding: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { font-size: 20px; }
+    .btn-sair { background: #dc3545; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    h2 { font-size: 16px; margin-bottom: 15px; color: #495057; border-bottom: 2px solid #f1f3f5; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+    th { background: #f8f9fa; color: #495057; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .badge-admin { background: #d4edda; color: #155724; }
+    .badge-user { background: #e2e3e5; color: #383d41; }
+    .badge-presente { background: #d1e7dd; color: #0f5132; }
+    .badge-atrasado { background: #fff3cd; color: #664d03; }
+    .badge-falta { background: #f8d7da; color: #842029; }
+    .btn-action { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-action:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Painel Geral do Administrador (Tempo Real - SP)</h1>
+      <button class="btn-sair" onclick="window.location.href='index.html'">Sair</button>
+    </header>
+
+    <!-- Gerenciamento de Contas e Permissões -->
+    <div class="card">
+      <h2>Contas de Usuários e Responsáveis</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>E-mail do Responsável</th>
+            <th>Aluno Vinculado</th>
+            <th>CPF do Aluno</th>
+            <th>Turma</th>
+            <th>Tipo de Acesso</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaContasAdmin">
+          <tr>
+            <td colspan="6" style="text-align: center; color: #6c757d;">Carregando contas cadastradas...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Controle de Frequência (Aulas: 07:00 às 07:50 / Atrasos: até 08:10) -->
+    <div class="card">
+      <h2>Frequência dos Alunos (Vinculado ao Tablet)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome do Aluno</th>
+            <th>CPF</th>
+            <th>Turma</th>
+            <th>Horário da Foto</th>
+            <th>Status (Regra SP)</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaFrequenciaAdmin">
+          <tr>
+            <td colspan="5" style="text-align: center; color: #6c757d;">Nenhum registro de entrada no tablet hoje.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Carrega dados salvos do localStorage para exibir no painel do Admin
+    window.onload = function() {
+      const contas = JSON.parse(localStorage.getItem('listaContas') || '[]');
+      const tbodyContas = document.getElementById('tabelaContasAdmin');
+      
+      if (contas.length > 0) {
+        tbodyContas.innerHTML = '';
+        contas.forEach((conta, index) => {
+          tbodyContas.innerHTML += `
+            <tr>
+              <td>${conta.email}</td>
+              <td>${conta.nome}</td>
+              <td>${conta.cpf}</td>
+              <td>${conta.turma}</td>
+              <td><span class="badge ${conta.isAdmin ? 'badge-admin' : 'badge-user'}">${conta.isAdmin ? 'Administrador' : 'Usuário Comum'}</span></td>
+              <td>
+                <button class="btn-action" onclick="alternarAdmin(${index})">
+                  ${conta.isAdmin ? 'Remover Admin' : 'Tornar Admin'}
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    };
+
+    function alternarAdmin(index) {
+      let contas = JSON.parse(localStorage.getItem('listaContas') || '[]');
+      contas[index].isAdmin = !contas[index].isAdmin;
+      localStorage.setItem('listaContas', JSON.stringify(contas));
+      alert('Permissão atualizada com sucesso!');
+      location.reload();
+    }
+  </script>
+
+</body>
+</html>
