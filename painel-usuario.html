@@ -1,30 +1,53 @@
-window.onload = function() {
-    // O CPF aqui deve ser exatamente o mesmo cadastrado para o aluno vinculado ao responsável
-    const cpfDoAlunoVinculado = "123.456.789-00"; 
-    
-    const registrosSalvos = JSON.parse(localStorage.getItem("historico_" + cpfDoAlunoVinculado)) || [];
-    const containerHistorico = document.getElementById("lista-historico");
-    
-    if (containerHistorico) {
-        containerHistorico.innerHTML = ""; 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Usuário - Histórico</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-        if (registrosSalvos.length === 0) {
-            containerHistorico.innerHTML = "<p>Nenhum registro de presença com foto encontrado ainda.</p>";
-            return;
-        }
+    <div style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2>Painel do Usuário</h2>
+        <p><strong>Aluno:</strong> João da Silva</p>
+        <p><strong>CPF:</strong> 123.456.789-00</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+        
+        <h3>Histórico de Frequência</h3>
+        <div id="lista-historico">
+            <p>Carregando histórico...</p>
+        </div>
+    </div>
 
-        registrosSalvos.forEach(item => {
-            const bloco = document.createElement("div");
-            bloco.style.cssText = "border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 8px; background: #fff;";
+    <script>
+        window.onload = function() {
+            const cpfDoAlunoVinculado = "123.456.789-00"; 
             
-            bloco.innerHTML = `
-                <p style="margin: 0 0 5px 0;"><strong>Data:</strong> ${item.data} às ${item.hora}</p>
-                <p style="margin: 0 0 8px 0; color: #28a745;"><strong>Status:</strong> Presente</p>
-                <p style="margin: 0 0 5px 0;"><strong>Foto da Entrada:</strong></p>
-                <img src="${item.foto}" alt="Foto tirada no tablet" style="width: 140px; height: 105px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;" />
-            `;
+            const registrosSalvos = JSON.parse(localStorage.getItem("historico_" + cpfDoAlunoVinculado)) || [];
+            const containerHistorico = document.getElementById("lista-historico");
             
-            containerHistorico.appendChild(bloco);
-        });
-    }
-};
+            if (containerHistorico) {
+                containerHistorico.innerHTML = ""; 
+
+                if (registrosSalvos.length === 0) {
+                    containerHistorico.innerHTML = "<p>Nenhum registro de presença com foto encontrado ainda.</p>";
+                    return;
+                }
+
+                registrosSalvos.forEach(item => {
+                    const bloco = document.createElement("div");
+                    bloco.style.cssText = "border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 8px; background: #fff;";
+                    
+                    bloco.innerHTML = `
+                        <p style="margin: 0 0 5px 0;"><strong>Data:</strong> ${item.data} às ${item.hora}</p>
+                        <p style="margin: 0 0 8px 0; color: #28a745;"><strong>Status:</strong> Presente</p>
+                        <p style="margin: 0 0 5px 0;"><strong>Foto da Entrada:</strong></p>
+                        <img src="${item.foto}" alt="Foto tirada no tablet" style="width: 140px; height: 105px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;" />
+                    `;
+                    
+                    containerHistorico.appendChild(bloco);
+                });
+            }
+        };
+    </script>
+</body>
+</html>
