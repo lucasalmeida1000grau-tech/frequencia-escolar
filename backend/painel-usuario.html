@@ -2,76 +2,44 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel do Responsável - Frequência do Aluno</title>
+    <title>Portal do Aluno / Responsável</title>
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
     <div style="max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2>Dados do Aluno Vinculado</h2>
-        <p><strong>Nome do Aluno:</strong> Lucas Lima</p>
-        <p><strong>CPF do Aluno:</strong> <span id="span-cpf">45870857821</span></p>
-        <p><strong>Turma:</strong> 2a</p>
-        <p><strong>E-mail do Responsável:</strong> lucasalmeida.lima0899@gmail.com</p>
-        
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-
-        <h3>Histórico e Status de Frequência</h3>
-        <div id="container-historico-usuario">
-            <p>Carregando dados de frequência...</p>
+        <h2>Portal do Aluno</h2>
+        <div id="dados-aluno" style="background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <p><strong>Nome:</strong> <span id="lbl-nome">-</span></p>
+            <p><strong>CPF:</strong> <span id="lbl-cpf">-</span></p>
+            <p><strong>Turma:</strong> <span id="lbl-turma">-</span></p>
         </div>
 
-        <button onclick="sairDaConta()" style="width: 100%; background: #d9534f; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px;">Sair da Conta</button>
+        <h3>Histórico de Presenças</h3>
+        <ul id="lista-historico" style="padding-left: 20px; color: #444;">
+            <li>Nenhuma presença registrada ainda.</li>
+        </ul>
+
+        <br>
+        <a href="index.html" style="font-size: 13px; color: #007BFF; text-decoration: none;">← Voltar para a página inicial</a>
     </div>
 
     <script>
-        window.onload = function() {
-            // CPF exato do aluno conforme exibido no painel
-            const cpfAluno = "45870857821";
-            const container = document.getElementById("container-historico-usuario");
-            
-            // Puxa os registros salvos no localStorage pelo tablet
-            const historico = JSON.parse(localStorage.getItem("historico_" + cpfAluno)) || [];
-            
-            container.innerHTML = "";
+        // Carrega os dados cadastrados
+        document.getElementById("lbl-nome").innerText = localStorage.getItem("aluno_nome") || "Não cadastrado";
+        document.getElementById("lbl-cpf").innerText = localStorage.getItem("aluno_cpf") || "-";
+        document.getElementById("lbl-turma").innerText = localStorage.getItem("aluno_turma") || "-";
 
-            if (historico.length === 0) {
-                // Caso não tenha entrado ou esteja ausente/atrasado
-                container.innerHTML = `
-                    <div style="background: #fff8f8; border: 1px solid #f5c6cb; padding: 12px; border-radius: 6px; color: #721c24;">
-                        <p style="margin: 0 0 5px 0;"><strong>Status:</strong> Ausente (Não registrado no tablet hoje)</p>
-                        <p style="margin: 0; font-size: 13px;">O aluno ainda não compareceu à aula ou o registro não foi efetuado.</p>
-                    </div>
-                `;
-            } else {
-                // Mostra cada registro de entrada encontrado
-                historico.forEach(item => {
-                    // Exemplo de regra de horário para definir se está atrasado (ex: entrada após as 07:15)
-                    let statusTexto = "Presente";
-                    let corStatus = "green";
-                    
-                    if (item.hora > "07:15:00") {
-                        statusTexto = "Atrasado";
-                        corStatus = "orange";
-                    }
+        // Carrega o histórico
+        const historico = JSON.parse(localStorage.getItem("historico_frequencia")) || [];
+        const lista = document.getElementById("lista-historico");
 
-                    const bloco = document.createElement("div");
-                    bloco.style.cssText = "border: 1px solid #ddd; background: #fafafa; padding: 12px; margin-bottom: 10px; border-radius: 6px;";
-                    
-                    bloco.innerHTML = `
-                        <p style="margin: 0 0 4px 0;"><strong>Data:</strong> ${item.data} às ${item.hora}</p>
-                        <p style="margin: 0 0 4px 0; color: ${corStatus};"><strong>Status:</strong> ${statusTexto}</p>
-                        <p style="margin: 0 0 4px 0;"><strong>Turma:</strong> 2a</p>
-                        <p style="margin: 0 0 4px 0;"><strong>Foto da Entrada:</strong></p>
-                        <img src="${item.foto}" alt="Foto do Aluno" style="width: 120px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;" />
-                    `;
-                    container.appendChild(bloco);
-                });
-            }
-        };
-
-        function sairDaConta() {
-            alert("Você saiu da conta.");
-            location.reload();
+        if (historico.length > 0) {
+            lista.innerHTML = "";
+            historico.forEach(item => {
+                const li = document.createElement("li");
+                li.innerText = `Presença registrada em: ${item.data}`;
+                lista.appendChild(li);
+            });
         }
     </script>
 </body>
