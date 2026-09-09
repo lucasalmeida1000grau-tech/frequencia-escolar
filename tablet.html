@@ -15,13 +15,14 @@
     button { background-color: #007bff; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
     button:hover { background-color: #0056b3; }
     .hidden { display: none; }
-    video, canvas { width: 100%; border-radius: 8px; margin-bottom: 15px; background: #000; }
-    .success-box { background: #28a745; color: white; padding: 15px; border-radius: 8px; margin-top: 15px; font-weight: bold; }
+    video { width: 100%; border-radius: 8px; margin-bottom: 15px; background: #000; }
+    canvas { display: none; }
+    .success-box { background: #28a745; color: white; padding: 15px; border-radius: 8px; margin-top: 15px; font-weight: bold; font-size: 14px; }
   </style>
 </head>
 <body>
 
-  <!-- TELA 1: DIGITAR CÓDIGO DA SALA -->
+  <!-- TELA 1: CÓDIGO DA SALA DO ADMIN -->
   <div class="card" id="tela-sala">
     <h2>Painel do Tablet</h2>
     <p>Digite o código da sala gerado pelo Administrador para liberar o terminal.</p>
@@ -32,19 +33,17 @@
   <!-- TELA 2: DIGITAR CPF DO ALUNO -->
   <div class="card hidden" id="tela-cpf">
     <h2>Registro de Presença</h2>
-    <p>Digite o CPF do aluno cadastrado para iniciar</p>
+    <p>Digite o CPF do aluno cadastrado</p>
     <input type="text" id="cpfAlunoInput" placeholder="000.000.000-00">
-    <button onclick="verificarCPF()">Continuar para a Câmera</button>
+    <button onclick="verificarCPF()">Buscar Aluno</button>
   </div>
 
-  <!-- TELA 3: TIRAR FOTO COM A CÂMERA -->
+  <!-- TELA 3: CÂMERA E CAPTURA DE FOTO -->
   <div class="card hidden" id="tela-camera">
     <h2>Capturar Presença</h2>
-    <p id="alunoNomeInfo">Posicione-se para a foto</p>
-    
+    <p id="alunoNomeInfo">Posicione-se para a foto de confirmação</p>
     <video id="video" autoplay playsinline></video>
-    <canvas id="canvas" class="hidden"></canvas>
-    
+    <canvas id="canvas"></canvas>
     <button onclick="tirarFotoESalvar()">Tirar Foto e Enviar</button>
   </div>
 
@@ -52,7 +51,7 @@
   <div class="card hidden" id="tela-sucesso">
     <h2>Presença Registrada!</h2>
     <div class="success-box">
-      Foto enviada com sucesso e responsável notificado!
+      Foto enviada e responsável notificado com sucesso!
     </div>
     <button onclick="reiniciarTerminal()">Próximo Aluno</button>
   </div>
@@ -60,11 +59,9 @@
   <script>
     let streamCamera = null;
 
-    // 1. Valida o Código da Sala criado pelo Admin
     function validarCodigoSala() {
       const codigo = document.getElementById('codigoSalaInput').value.trim();
       if (codigo !== "") {
-        // Aqui checa com o backend/banco se o código da sala existe
         document.getElementById('tela-sala').classList.add('hidden');
         document.getElementById('tela-cpf').classList.remove('hidden');
       } else {
@@ -72,7 +69,6 @@
       }
     }
 
-    // 2. Verifica o CPF no Banco de Dados
     function verificarCPF() {
       const cpf = document.getElementById('cpfAlunoInput').value.trim();
       if (cpf.length < 11) {
@@ -80,15 +76,12 @@
         return;
       }
 
-      // Consulta simulada ao banco de dados para puxar o nome do aluno pelo CPF
-      // (No seu backend Node.js, aqui fará a requisição para buscar o aluno cadastrado pelo responsável)
+      // Avança para a câmera após puxar o CPF do banco de dados
       document.getElementById('tela-cpf').classList.add('hidden');
       document.getElementById('tela-camera').classList.remove('hidden');
-      
       iniciarCamera();
     }
 
-    // 3. Ativa a Câmera do Dispositivo
     async function iniciarCamera() {
       try {
         const videoElement = document.getElementById('video');
@@ -99,7 +92,6 @@
       }
     }
 
-    // 4. Tira a Foto, Salva no Banco e Envia ao Responsável
     function tirarFotoESalvar() {
       const video = document.getElementById('video');
       const canvas = document.getElementById('canvas');
@@ -111,19 +103,16 @@
 
       const imagemBase64 = canvas.toDataURL('image/png');
 
-      // Parar a câmera
       if (streamCamera) {
         streamCamera.getTracks().forEach(track => track.stop());
       }
 
-      // Aqui os dados (CPF + Imagem Base64) são enviados para o seu backend salvar no banco
-      // e disparar a notificação para o e-mail/responsável cadastrado.
+      // Aqui o código envia a foto e o CPF para o backend salvar e notificar o responsável
 
       document.getElementById('tela-camera').classList.add('hidden');
       document.getElementById('tela-sucesso').classList.remove('hidden');
     }
 
-    // 5. Reinicia o terminal para o próximo aluno
     function reiniciarTerminal() {
       document.getElementById('cpfAlunoInput').value = '';
       document.getElementById('codigoSalaInput').value = '';
