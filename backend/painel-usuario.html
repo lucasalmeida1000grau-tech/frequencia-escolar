@@ -10,54 +10,57 @@
     <div style="max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <h2>Portal do Aluno</h2>
         
-        <div id="dados-aluno" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee;">
-            <div id="container-foto">
-                <img id="lbl-foto" src="" alt="Foto" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid #007BFF;">
-            </div>
-            <div>
-                <p style="margin: 4px 0;"><strong>Nome:</strong> <span id="lbl-nome">-</span></p>
-                <p style="margin: 4px 0;"><strong>CPF:</strong> <span id="lbl-cpf">-</span></p>
-                <p style="margin: 4px 0;"><strong>Turma:</strong> <span id="lbl-turma">-</span></p>
-            </div>
+        <div id="dados-aluno" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee;">
+            <p style="margin: 4px 0;"><strong>Nome:</strong> <span id="lbl-nome">-</span></p>
+            <p style="margin: 4px 0;"><strong>CPF:</strong> <span id="lbl-cpf">-</span></p>
+            <p style="margin: 4px 0;"><strong>Turma:</strong> <span id="lbl-turma">-</span></p>
+            <p style="margin: 4px 0;"><strong>E-mail:</strong> <span id="lbl-email">-</span></p>
         </div>
 
-        <h3 style="font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px;">Histórico de Frequência (Entradas na Escola)</h3>
-        <ul id="lista-historico" style="padding-left: 20px; color: #444; max-height: 200px; overflow-y: auto;">
-            <li>Nenhuma entrada registrada ainda.</li>
-        </ul>
+        <h3 style="font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px;">Histórico de Entradas na Escola</h3>
+        <div id="lista-historico" style="max-height: 250px; overflow-y: auto;">
+            <p style="color: #666; font-size: 14px;">Nenhuma entrada registrada ainda.</p>
+        </div>
 
         <br>
         <a href="index.html" style="display: block; text-align: center; background: #dc3545; color: white; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: bold;">Sair da Conta</a>
     </div>
 
     <script>
+        const cpfLogado = localStorage.getItem("aluno_cpf");
         const nomeAluno = localStorage.getItem("aluno_nome") || "Não cadastrado";
-        const cpfAluno = localStorage.getItem("aluno_cpf") || "-";
         const turmaAluno = localStorage.getItem("aluno_turma") || "-";
-        const fotoAluno = localStorage.getItem("aluno_foto");
+        const emailResp = localStorage.getItem("responsavel_email") || "-";
 
         document.getElementById("lbl-nome").innerText = nomeAluno;
-        document.getElementById("lbl-cpf").innerText = cpfAluno;
+        document.getElementById("lbl-cpf").innerText = cpfLogado || "-";
         document.getElementById("lbl-turma").innerText = turmaAluno;
+        document.getElementById("lbl-email").innerText = emailResp;
 
-        if (fotoAluno) {
-            const imgEl = document.getElementById("lbl-foto");
-            imgEl.src = fotoAluno;
-            imgEl.style.display = "block";
-        }
-
-        // Filtra o histórico apenas para este aluno logado pelo CPF
+        // Puxa o histórico de frequência filtrado pelo CPF do aluno logado
         const historico = JSON.parse(localStorage.getItem("historico_frequencia")) || [];
-        const historicoAluno = historico.filter(item => item.cpf === cpfAluno);
-        const lista = document.getElementById("lista-historico");
+        const historicoAluno = historico.filter(item => item.cpf === cpfLogado);
+        const containerHistorico = document.getElementById("lista-historico");
 
         if (historicoAluno.length > 0) {
-            lista.innerHTML = "";
+            containerHistorico.innerHTML = "";
             historicoAluno.forEach(item => {
-                const li = document.createElement("li");
-                li.style.marginBottom = "8px";
-                li.innerText = `Entrou na escola em: ${item.data}`;
-                lista.appendChild(li);
+                const card = document.createElement("div");
+                card.style.cssText = "display: flex; align-items: center; gap: 12px; background: #fdfdfd; border: 1px solid #eee; padding: 10px; border-radius: 6px; margin-bottom: 10px;";
+                
+                let imgHtml = "<span style='font-size:12px; color:#999;'>Sem foto</span>";
+                if (item.foto) {
+                    imgHtml = `<img src="${item.foto}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #28a745;">`;
+                }
+
+                card.innerHTML = `
+                    <div>${imgHtml}</div>
+                    <div>
+                        <p style="margin: 0; font-size: 14px; font-weight: bold; color: #333;">Entrada Registrada</p>
+                        <p style="margin: 2px 0 0 0; font-size: 13px; color: #666;">📅 ${item.data}</p>
+                    </div>
+                `;
+                containerHistorico.appendChild(card);
             });
         }
     </script>
