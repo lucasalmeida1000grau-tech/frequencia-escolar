@@ -2,34 +2,40 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Administrador</title>
+    <title>Início - Sistema Escolar</title>
 </head>
-<body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9;">
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px;">
-        <h2>Login Administrador</h2>
-        <form onsubmit="validarLogin(event)">
-            <label>Usuário:</label><br>
-            <input type="text" id="usuario" style="width: 100%; padding: 8px; margin: 8px 0;" required><br>
+    <!-- Ícone de Engrenagem no Canto Superior Direito para Acesso do Admin -->
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="painel-admin.html" title="Painel do Administrador" style="text-decoration: none; font-size: 24px; background: #e0e0e0; padding: 8px 12px; border-radius: 50%;">⚙️</a>
+    </div>
+
+    <div style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2>Área do Responsável / Aluno</h2>
+        <p>Faça login para ver o painel de frequência:</p>
+        
+        <form onsubmit="fazerLoginUsuario(event)">
+            <label>E-mail:</label><br>
+            <input type="email" id="email-usuario" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
             
             <label>Senha:</label><br>
-            <input type="password" id="senha" style="width: 100%; padding: 8px; margin: 8px 0;" required><br>
+            <input type="password" id="senha-usuario" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
             
-            <button type="submit" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Entrar</button>
+            <button type="submit" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Entrar no Painel</button>
         </form>
     </div>
 
     <script>
-        function validarLogin(event) {
+        function fazerLoginUsuario(event) {
             event.preventDefault();
-            const usuario = document.getElementById("usuario").value;
-            const senha = document.getElementById("senha").value;
-
-            if (usuario === "ADM1" && senha === "ADM2") {
-                alert("Login de Administrador realizado com sucesso!");
-                window.location.href = "painel-admin.html";
+            const email = document.getElementById("email-usuario").value;
+            
+            // Redireciona para o painel do usuário caso o e-mail exista
+            if (email === "lucasalmeida.lima0899@gmail.com") {
+                window.location.href = "painel-usuario.html";
             } else {
-                alert("Usuário ou senha incorretos! Use ADM1 e ADM2.");
+                alert("E-mail não encontrado no sistema.");
             }
         }
     </script>
