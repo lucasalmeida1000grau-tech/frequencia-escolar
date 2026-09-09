@@ -9,20 +9,22 @@
 
     <div style="max-width: 400px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <h2>Registro de Frequência</h2>
-        <p style="color: #666; font-size: 14px;">Digite o CPF e tire a foto para registrar a entrada:</p>
+        <p style="color: #666; font-size: 14px;">Digite o CPF e tire sua foto:</p>
         
         <input type="text" id="tablet-cpf" placeholder="Digite o CPF do aluno" style="width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; border-radius: 6px;"><br>
 
-        <!-- Área da Câmera -->
-        <div style="margin: 15px 0;">
-            <video id="video-camera" autoplay playsinline style="width: 100%; max-height: 200px; background: #000; border-radius: 6px; display: none; object-fit: cover;"></video>
+        <!-- Área da Câmera / Preview -->
+        <div style="margin: 15px 0; position: relative;">
+            <video id="video-camera" autoplay playsinline style="width: 100%; max-height: 220px; background: #000; border-radius: 6px; display: none; object-fit: cover;"></video>
             <canvas id="canvas-foto" style="display: none;"></canvas>
-            <img id="img-preview" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: none; margin: 10px auto; border: 2px solid #28a745;">
+            <img id="img-preview" alt="Prévia da Foto" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; display: none; margin: 10px auto; border: 3px solid #28a745;">
         </div>
 
-        <button id="btn-ligar-camera" onclick="ligarCamera()" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 8px;">📷 Abrir Câmera</button>
+        <button id="btn-ligar-camera" onclick="ligarCamera()" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 8px;">📷 Ligar Câmera</button>
         
-        <button onclick="registrarPresenca()" style="width: 100%; background: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">Registrar Presença e Enviar Foto</button>
+        <button id="btn-tirar-foto" onclick="tirarFoto()" style="width: 100%; background: #ffc107; color: #333; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 8px; display: none;">📸 Tirar Foto</button>
+
+        <button id="btn-enviar" onclick="registrarPresenca()" style="width: 100%; background: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; display: none;">✅ Confirmar e Enviar Presença</button>
         
         <p id="tablet-msg" style="margin-top: 15px; font-weight: bold;"></p>
         
@@ -41,16 +43,42 @@
                 video.srcObject = streamCamera;
                 video.style.display = "block";
                 document.getElementById("btn-ligar-camera").style.display = "none";
+                document.getElementById("btn-tirar-foto").style.display = "block";
+                document.getElementById("img-preview").style.display = "none";
             } catch (error) {
-                alert("Erro ao acessar a câmera. Verifique as permissões do navegador.");
+                alert("Erro ao acessar a câmera. Verifique as permissões.");
             }
+        }
+
+        function tirarFoto() {
+            const video = document.getElementById("video-camera");
+            const canvas = document.getElementById("canvas-foto");
+            const imgPreview = document.getElementById("img-preview");
+
+            canvas.width = video.videoWidth || 300;
+            canvas.height = video.videoHeight || 300;
+            const context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            fotoCapturadaBase64 = canvas.toDataURL("image/png");
+            
+            // Mostra a foto tirada para o aluno conferir
+            imgPreview.src = fotoCapturadaBase64;
+            imgPreview.style.display = "block";
+            video.style.display = "none";
+
+            // Desliga a câmera para economizar recursos
+            if (streamCamera) {
+                streamCamera.getTracks().forEach(track => track.stop());
+            }
+
+            document.getElementById("btn-tirar-foto").style.display = "none";
+            document.getElementById("btn-enviar").style.display = "block";
         }
 
         function registrarPresenca() {
             const cpfDigitado = document.getElementById("tablet-cpf").value.trim();
             const msg = document.getElementById("tablet-msg");
-            const video = document.getElementById("video-camera");
-            const canvas = document.getElementById("canvas-foto");
 
             if (!cpfDigitado) {
                 msg.style.color = "red";
@@ -58,20 +86,15 @@
                 return;
             }
 
-            // Captura a foto atual da câmera se estiver ligada
-            if (streamCamera) {
-                canvas.width = video.videoWidth || 300;
-                canvas.height = video.videoHeight || 300;
-                const context = canvas.getContext("2d");
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                fotoCapturadaBase64 = canvas.toDataURL("image/png");
+            if (!fotoCapturadaBase64) {
+                msg.style.color = "red";
+                msg.innerText = "Por favor, tire a foto antes de enviar.";
+                return;
             }
 
-            // Busca na lista geral de alunos cadastrados
             let listaAlunos = JSON.parse(localStorage.getItem("lista_geral_alunos")) || [];
             let alunoEncontrado = listaAlunos.find(a => a.cpf === cpfDigitado);
 
-            // Compatibilidade com cadastro único anterior
             if (!alunoEncontrado && cpfDigitado === localStorage.getItem("aluno_cpf")) {
                 alunoEncontrado = {
                     nome: localStorage.getItem("aluno_nome"),
@@ -90,21 +113,19 @@
                     cpf: alunoEncontrado.cpf, 
                     turma: alunoEncontrado.turma,
                     data: dataHora,
-                    foto: fotoCapturadaBase64 || alunoEncontrado.foto || "" 
+                    foto: fotoCapturadaBase64 
                 });
                 localStorage.setItem("historico_frequencia", JSON.stringify(historico));
 
                 msg.style.color = "green";
-                msg.innerText = `Presença registrada com foto para ${alunoEncontrado.nome}!`;
+                msg.innerText = `Presença e foto enviadas com sucesso para ${alunoEncontrado.nome}!`;
                 
-                // Limpa os campos
+                // Reseta a tela
                 document.getElementById("tablet-cpf").value = "";
+                document.getElementById("img-preview").style.display = "none";
+                document.getElementById("btn-enviar").style.display = "none";
+                document.getElementById("btn-ligar-camera").style.display = "block";
                 fotoCapturadaBase64 = "";
-                if (streamCamera) {
-                    streamCamera.getTracks().forEach(track => track.stop());
-                    video.style.display = "none";
-                    document.getElementById("btn-ligar-camera").style.display = "block";
-                }
             } else {
                 msg.style.color = "red";
                 msg.innerText = "CPF não encontrado no sistema.";
