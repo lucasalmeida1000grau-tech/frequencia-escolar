@@ -4,39 +4,19 @@
     <meta charset="UTF-8">
     <title>Início - Sistema Escolar</title>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
+<body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; position: relative;">
 
-    <!-- Engrenagem no canto superior direito levando para o login do Admin -->
-    <div style="text-align: right; margin-bottom: 20px;">
-        <a href="login-admin.html" title="Painel do Administrador" style="text-decoration: none; font-size: 24px; background: #e0e0e0; padding: 8px 12px; border-radius: 50%;">⚙️</a>
-    </div>
+    <!-- Ícone de Engrenagem do Admin no canto superior direito -->
+    <a href="login-admin.html" style="position: absolute; top: 20px; right: 20px; font-size: 24px; text-decoration: none;" title="Painel Admin">⚙️</a>
 
-    <div style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2>Área do Responsável</h2>
-        <p>Faça login para ver a frequência do aluno:</p>
+    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; width: 320px;">
+        <h2>Sistema de Frequência</h2>
+        <p style="color: #666; font-size: 14px;">Escolha como deseja acessar:</p>
         
-        <form onsubmit="fazerLoginUsuario(event)">
-            <label>E-mail:</label><br>
-            <input type="email" id="email-usuario" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
-            
-            <label>Senha:</label><br>
-            <input type="password" id="senha-usuario" style="width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box;" required><br>
-            
-            <button type="submit" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Entrar no Painel</button>
-        </form>
+        <a href="cadastro.html" style="display: block; background: #007BFF; color: white; padding: 10px; margin: 10px 0; border-radius: 4px; text-decoration: none;">Cadastrar-se</a>
+        <a href="painel-usuario.html" style="display: block; background: #28a745; color: white; padding: 10px; margin: 10px 0; border-radius: 4px; text-decoration: none;">Portal do Aluno / Responsável</a>
+        <a href="tablet.html" style="display: block; background: #ffc107; color: #333; padding: 10px; margin: 10px 0; border-radius: 4px; text-decoration: none;">Modo Tablet (Chamada)</a>
     </div>
 
-    <script>
-        function fazerLoginUsuario(event) {
-            event.preventDefault();
-            const email = document.getElementById("email-usuario").value;
-            
-            if (email === "lucasalmeida.lima0899@gmail.com") {
-                window.location.href = "painel-usuario.html";
-            } else {
-                alert("E-mail não encontrado.");
-            }
-        }
-    </script>
 </body>
 </html>
