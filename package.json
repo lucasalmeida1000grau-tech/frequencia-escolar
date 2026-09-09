@@ -1,9 +1,0 @@
-{
-  "name": "frequencia-escolar",
-  "version": "1.0.0",
-  "description": "Sistema de Frequência Escolar",
-  "main": "index.html",
-  "scripts": {
-    "start": "echo 'Static site running'"
-  }
-}
