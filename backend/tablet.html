@@ -1,19 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modo Tablet - Chamada Escolar</title>
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; text-align: center;">
 
-    <div style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2>Registro de Frequência (Tablet)</h2>
-        <p style="color: #666; font-size: 14px;">Digite o CPF do aluno para registrar a presença:</p>
+    <div style="max-width: 400px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+        <h2>Registro de Frequência</h2>
+        <p style="color: #666; font-size: 14px;">Digite o CPF do aluno para registrar a entrada:</p>
         
-        <input type="text" id="tablet-cpf" placeholder="Digite o CPF do aluno" style="width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; font-size: 16px;"><br>
+        <input type="text" id="tablet-cpf" placeholder="Digite o CPF do aluno" style="width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; border-radius: 6px;"><br>
         
-        <button onclick="registrarPresenca()" style="width: 100%; background: #ffc107; color: #333; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Registrar Presença</button>
+        <button onclick="registrarPresenca()" style="width: 100%; background: #ffc107; color: #333; padding: 12px; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">Registrar Presença</button>
         
         <p id="tablet-msg" style="margin-top: 15px; font-weight: bold;"></p>
         
@@ -24,8 +24,6 @@
     <script>
         function registrarPresenca() {
             const cpfDigitado = document.getElementById("tablet-cpf").value.trim();
-            const cpfSalvo = localStorage.getItem("aluno_cpf");
-            const nomeAluno = localStorage.getItem("aluno_nome") || "Aluno";
             const msg = document.getElementById("tablet-msg");
 
             if (!cpfDigitado) {
@@ -34,16 +32,36 @@
                 return;
             }
 
-            if (cpfDigitado === cpfSalvo || cpfDigitado === "45870857821") {
-                const dataHora = new Date().toLocaleString("pt-BR");
+            // Busca na lista geral de alunos cadastrados
+            let listaAlunos = JSON.parse(localStorage.getItem("lista_geral_alunos")) || [];
+            let alunoEncontrado = listaAlunos.find(a => a.cpf === cpfDigitado);
+
+            // Compatibilidade com cadastro antigo único
+            if (!alunoEncontrado && cpfDigitado === localStorage.getItem("aluno_cpf")) {
+                alunoEncontrado = {
+                    nome: localStorage.getItem("aluno_nome"),
+                    cpf: cpfDigitado,
+                    turma: localStorage.getItem("aluno_turma"),
+                    foto: localStorage.getItem("aluno_foto") || ""
+                };
+            }
+
+            if (alunoEncontrado) {
+                const agora = new Date();
+                const dataHora = agora.toLocaleDateString("pt-BR") + " às " + agora.toLocaleTimeString("pt-BR");
                 
-                // Salva histórico de frequência
                 let historico = JSON.parse(localStorage.getItem("historico_frequencia")) || [];
-                historico.push({ nome: nomeAluno, cpf: cpfDigitado, data: dataHora });
+                historico.push({ 
+                    nome: alunoEncontrado.nome, 
+                    cpf: alunoEncontrado.cpf, 
+                    turma: alunoEncontrado.turma,
+                    data: dataHora,
+                    foto: alunoEncontrado.foto 
+                });
                 localStorage.setItem("historico_frequencia", JSON.stringify(historico));
 
                 msg.style.color = "green";
-                msg.innerText = `Presença confirmada para ${nomeAluno} às ${dataHora}!`;
+                msg.innerText = `Entrada confirmada para ${alunoEncontrado.nome} às ${agora.toLocaleTimeString("pt-BR")}!`;
                 document.getElementById("tablet-cpf").value = "";
             } else {
                 msg.style.color = "red";
