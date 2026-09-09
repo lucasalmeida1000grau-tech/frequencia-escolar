@@ -84,8 +84,13 @@
 
         const data = await response.json();
         if (response.ok) {
-          // Redireciona para o painel de cadastro do aluno
-          window.location.href = 'app-pais/index.html';
+          if (isCadastro) {
+            alert('Cadastro feito com sucesso! Redirecionando...');
+          } else {
+            alert('Login efetuado!');
+          }
+          // Usando caminho relativo correto para a pasta app-pais
+          window.location.href = './app-pais/index.html';
         } else {
           alert('Erro: ' + (data.mensagem || 'Falha na requisição'));
         }
