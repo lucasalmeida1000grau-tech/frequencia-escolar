@@ -9,16 +9,27 @@
 
     <div style="max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <h2>Painel Geral - Administrador</h2>
-        <p style="color: #666; font-size: 14px;">Registro completo de acessos de todos os alunos pelo tablet:</p>
+
+        <!-- Gerenciamento de Salas -->
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee;">
+            <h3 style="margin-top: 0; font-size: 15px; color: #007BFF;">Gerenciar Salas / Turmas</h3>
+            <p style="font-size: 13px; color: #666;">Crie os códigos das salas para que os alunos possam se cadastrar:</p>
+            <input type="text" id="nova-sala" placeholder="Ex: 2A, 3B, MAT1" style="padding: 8px; width: 60%; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="adicionarSala()" style="background: #007BFF; color: white; border: none; padding: 9px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">Criar Sala</button>
+            
+            <ul id="lista-salas" style="margin-top: 10px; padding-left: 20px; font-size: 14px;"></ul>
+        </div>
+
+        <h3 style="font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px;">Registro de Frequência (Tablet)</h3>
 
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
                 <thead>
-                    <tr style="background: #007BFF; color: white; text-align: left;">
-                        <th style="padding: 10px; border: 1px solid #ddd;">Foto</th>
+                    <tr style="background: #28a745; color: white; text-align: left;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Foto (Tablet)</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Nome</th>
                         <th style="padding: 10px; border: 1px solid #ddd;">Turma</th>
-                        <th style="padding: 10px; border: 1px solid #ddd;">Data e Horário da Entrada</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Data e Horário</th>
                     </tr>
                 </thead>
                 <tbody id="tabela-admin">
@@ -30,12 +41,54 @@
         </div>
 
         <br>
-        <button onclick="limparHistorico()" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Limpar Todos os Registros</button>
+        <button onclick="limparHistorico()" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Limpar Histórico de Presenças</button>
         <br><br>
         <a href="index.html" style="font-size: 13px; color: #007BFF; text-decoration: none;">← Sair para a página inicial</a>
     </div>
 
     <script>
+        // Gestão de Salas
+        function carregarSalas() {
+            const listaSalasEl = document.getElementById("lista-salas");
+            let salas = JSON.parse(localStorage.getItem("salas_admin")) || [];
+            listaSalasEl.innerHTML = "";
+            if (salas.length === 0) {
+                listaSalasEl.innerHTML = "<li>Nenhuma sala criada ainda. Os cadastros estarão livres até criar a primeira.</li>";
+            } else {
+                salas.forEach((sala, index) => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `Sala: <b>${sala}</b> <button onclick="removerSala(${index})" style="color:red; background:none; border:none; cursor:pointer; font-size:12px;">[Excluir]</button>`;
+                    listaSalasEl.appendChild(li);
+                });
+            }
+        }
+
+        function adicionarSala() {
+            const inputSala = document.getElementById("nova-sala");
+            const nomeSala = inputSala.value.trim().toUpperCase();
+            if (!nomeSala) return;
+
+            let salas = JSON.parse(localStorage.getItem("salas_admin")) || [];
+            if (!salas.includes(nomeSala)) {
+                salas.push(nomeSala);
+                localStorage.setItem("salas_admin", JSON.stringify(salas));
+                inputSala.value = "";
+                carregarSalas();
+            } else {
+                alert("Essa sala já existe!");
+            }
+        }
+
+        function removerSala(index) {
+            let salas = JSON.parse(localStorage.getItem("salas_admin")) || [];
+            salas.splice(index, 1);
+            localStorage.setItem("salas_admin", JSON.stringify(salas));
+            carregarSalas();
+        }
+
+        carregarSalas();
+
+        // Tabela de Histórico
         const historico = JSON.parse(localStorage.getItem("historico_frequencia")) || [];
         const tabela = document.getElementById("tabela-admin");
 
@@ -43,10 +96,9 @@
             tabela.innerHTML = "";
             historico.forEach(item => {
                 const tr = document.createElement("tr");
-                
                 let imgTag = "Sem foto";
                 if (item.foto) {
-                    imgTag = `<img src="${item.foto}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                    imgTag = `<img src="${item.foto}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">`;
                 }
 
                 tr.innerHTML = `
@@ -60,7 +112,7 @@
         }
 
         function limparHistorico() {
-            if (confirm("Deseja realmente apagar todo o histórico de presenças?")) {
+            if (confirm("Deseja realmente apagar o histórico de presenças?")) {
                 localStorage.removeItem("historico_frequencia");
                 location.reload();
             }
