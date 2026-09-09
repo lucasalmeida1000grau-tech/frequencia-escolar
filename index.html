@@ -6,18 +6,22 @@
   <title>Frequência Escolar - Login</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; }
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; position: relative; }
+    .gear-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; text-decoration: none; background: #ddd; padding: 10px; border-radius: 50%; }
     .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
     h2 { margin-bottom: 20px; color: #333; }
     .input-group { margin-bottom: 15px; text-align: left; }
     label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
-    .google-btn { background-color: #fff; color: #555; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
+    button:hover { background-color: #0056b3; }
     .toggle-link { margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; display: inline-block; }
   </style>
 </head>
 <body>
+
+  <!-- Ícone de Engrenagem para Painel ADM -->
+  <a href="./adm/" class="gear-icon" title="Painel Administrador">⚙️</a>
 
   <div class="container">
     <h2 id="form-title">Acessar Conta</h2>
@@ -40,11 +44,6 @@
 
       <button type="submit" id="btn-submit">Entrar</button>
     </form>
-
-    <button class="google-btn" onclick="loginComGoogle()">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
-      Entrar com o Google
-    </button>
 
     <span class="toggle-link" id="toggle-btn" onclick="alternarModo()">Não tem uma conta? Cadastre-se</span>
   </div>
@@ -81,16 +80,12 @@
         if (response.ok) {
           window.location.href = './app-pais/';
         } else {
-          alert(data.mensagem);
+          alert(data.mensagem); // Avisa se o e-mail já existe ao tentar cadastrar
         }
       } catch (err) {
         alert('Erro ao conectar com o servidor.');
       }
     });
-
-    function loginComGoogle() {
-      window.location.href = `${API_URL}/auth/google`;
-    }
   </script>
 </body>
 </html>
