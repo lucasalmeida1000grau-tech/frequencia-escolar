@@ -19,7 +19,7 @@
 </head>
 <body>
 
-  <!-- Tela de Login do ADM -->
+  <!-- Tela de Login do ADM (Senha Oculta) -->
   <div class="card" id="login-adm-box">
     <h2>Login do Administrador</h2>
     <input type="text" id="adm-user" placeholder="Usuário (adm1)">
@@ -64,7 +64,7 @@
         document.getElementById('login-adm-box').style.display = 'none';
         document.getElementById('painel-adm').style.display = 'block';
         carregarDadosAdm();
-        setInterval(carregarDadosAdm, 5000); // Atualiza em tempo real a cada 5s
+        setInterval(carregarDadosAdm, 5000);
       } else {
         alert('Usuário ou senha do Administrador incorretos.');
       }
@@ -93,7 +93,6 @@
       const res = await fetch(`${API_URL}/api/adm/dados`);
       const data = await res.json();
 
-      // Renderiza Salas
       const divSalas = document.getElementById('lista-salas');
       if (data.salas.length === 0) {
         divSalas.innerHTML = 'Nenhuma sala cadastrada.';
@@ -101,7 +100,6 @@
         divSalas.innerHTML = '<ul>' + data.salas.map(s => `<li>Código: <strong>${s.codigo}</strong> — Turma: ${s.nomeTurma}</li>`).join('') + '</ul>';
       }
 
-      // Renderiza Registros em Tempo Real
       const divRelatorio = document.getElementById('relatorio-geral');
       if (data.registros.length === 0) {
         divRelatorio.innerHTML = 'Nenhum registro de ponto até o momento.';
