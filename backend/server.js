@@ -1,63 +1,45 @@
-const express = require('express');
-const cors = require('cors');
+// Banco de dados temporário
+const alunos = [];
+const registrosPresenca = [];
 
-const app = express();
-
-// 1. Libera o CORS para permitir requisições do seu Netlify
-app.use(cors());
-
-// 2. Permite que o servidor entenda requisições no formato JSON
-app.use(express.json());
-
-// Banco de dados temporário em memória (para testes)
-const usuarios = [];
-
-// Rota de teste para verificar se o servidor está rodando
-app.get('/', (req, res) => {
-  res.send('API da Frequência Escolar está funcionando!');
+// Rota para o responsável cadastrar o aluno
+app.post('/api/cadastrar-aluno', (req, res) => {
+  const { nome, cpf, turma } = req.body;
+  alunos.push({ nome, cpf, turma });
+  return res.status(201).json({ mensagem: 'Aluno cadastrado com sucesso!' });
 });
 
-// Rota de Cadastro (/api/cadastro)
-app.post('/api/cadastro', (req, res) => {
-  const { nome, email, senha } = req.body;
+// Rota chamada pelo tablet da escola ao bater ponto
+app.post('/api/registrar-ponto', (req, res) => {
+  const { cpf, foto, horaMinuto } = req.body; // Exemplo horaMinuto: "07:30"
+  
+  const [hora, minuto] = horaMinuto.split(':').map(Number);
+  const tempoEmMinutos = hora * 60 + minuto;
 
-  if (!email || !senha) {
-    return res.status(400).json({ mensagem: 'Preencha todos os campos obrigatórios.' });
+  let statusMensagem = "";
+
+  // 07:00 (420 min) até 07:50 (470 min)
+  if (tempoEmMinutos >= 420 && tempoEmMinutos <= 470) {
+    statusMensagem = "Seu filho entrou na escola";
+  } 
+  // 07:51 (471 min) até 08:10 (490 min)
+  else if (tempoEmMinutos > 470 && tempoEmMinutos <= 490) {
+    statusMensagem = "Seu filho entrou na segunda aula";
+  } 
+  // Após 08:10
+  else {
+    statusMensagem = "Não entrou na escola (Horário limite excedido)";
   }
 
-  const usuarioExiste = usuarios.find(user => user.email === email);
-  if (usuarioExiste) {
-    return res.status(400).json({ mensagem: 'Este e-mail já está cadastrado.' });
-  }
+  const novoRegistro = { cpf, foto, horario: horaMinuto, mensagem: statusMensagem };
+  registrosPresenca.push(novoRegistro);
 
-  // Salva o novo usuário
-  const novoUsuario = { id: Date.now(), nome, email, senha };
-  usuarios.push(novoUsuario);
-
-  console.log('Usuário cadastrado com sucesso:', novoUsuario);
-  return res.status(201).json({ mensagem: 'Cadastro realizado com sucesso!', usuario: novoUsuario });
+  return res.status(200).json({ mensagem: 'Ponto registrado', status: statusMensagem });
 });
 
-// Rota de Login (/api/login)
-app.post('/api/login', (req, res) => {
-  const { email, senha } = req.body;
-
-  const usuario = usuarios.find(user => user.email === email && user.senha === senha);
-
-  if (!usuario) {
-    return res.status(401).json({ mensagem: 'E-mail ou senha incorretos.' });
-  }
-
-  return res.status(200).json({ mensagem: 'Login efetuado com sucesso!', usuario });
-});
-
-// Rota para autenticação com Google (placeholder)
-app.get('/auth/google', (req, res) => {
-  res.send('Redirecionando para autenticação do Google...');
-});
-
-// Configuração da porta do Render
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+// Rota para o app dos pais consultar as notificações do filho
+app.get('/api/presenca/:cpf', (req, res) => {
+  const { cpf } = req.params;
+  const lista = registrosPresenca.filter(r => r.cpf === cpf);
+  return res.json({ registros: lista });
 });
