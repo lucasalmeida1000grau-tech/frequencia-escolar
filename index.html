@@ -9,11 +9,13 @@
     body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f6f9; padding: 20px; position: relative; }
     .top-links { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 99; }
     .icon-btn { background: #e0e0e0; border: none; padding: 10px 12px; border-radius: 50%; font-size: 18px; cursor: pointer; text-decoration: none; color: #333; display: flex; align-items: center; justify-content: center; }
+    .icon-btn:hover { background: #d0d0d0; }
     .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
     h2 { margin-bottom: 20px; color: #333; }
     .input-group { margin-bottom: 15px; text-align: left; }
     label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    input:focus { border-color: #007bff; outline: none; }
     button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
     button:hover { background-color: #0056b3; }
     .toggle-link { margin-top: 15px; font-size: 14px; color: #007bff; cursor: pointer; display: inline-block; }
@@ -21,9 +23,9 @@
 </head>
 <body>
 
-  <!-- Atalhos no topo: Engrenagem (ADM) e Tablet -->
+  <!-- Atalhos no topo: Painel do Tablet e Painel Administrador (Engrenagem) -->
   <div class="top-links">
-    <a href="./tablet/" class="icon-btn" title="Painel do Tablet">📱</a>
+    <a href="./painel-tablet/" class="icon-btn" title="Painel do Tablet">📱</a>
     <a href="./adm/" class="icon-btn" title="Painel Administrador">⚙️</a>
   </div>
 
