@@ -3,47 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal do Tablet - Código da Sala</title>
+  <title>Terminal de Frequência - Tablet</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background-color: #1e1e2f; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; color: #fff; }
-    .card { background: #2b2b40; padding: 35px 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
+    .card { background: #2b2b40; padding: 35px 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 420px; text-align: center; }
     h2 { margin-bottom: 10px; font-size: 22px; color: #fff; }
     p { color: #aaa; margin-bottom: 25px; font-size: 13px; }
-    input { width: 100%; padding: 14px; border: 1px solid #444; background: #1e1e2f; color: #fff; border-radius: 8px; font-size: 16px; text-align: center; letter-spacing: 2px; margin-bottom: 20px; outline: none; }
+    input { width: 100%; padding: 14px; border: 1px solid #444; background: #1e1e2f; color: #fff; border-radius: 8px; font-size: 16px; text-align: center; margin-bottom: 20px; outline: none; }
     input:focus { border-color: #007bff; }
-    button { background-color: #007bff; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; transition: background 0.2s; }
+    button { background-color: #007bff; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
     button:hover { background-color: #0056b3; }
-    .error-msg { color: #ff6b6b; font-size: 12px; margin-top: 10px; display: none; }
+    .hidden { display: none; }
+    video, canvas { width: 100%; border-radius: 8px; margin-bottom: 15px; background: #000; }
+    .success-box { background: #28a745; color: white; padding: 15px; border-radius: 8px; margin-top: 15px; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div class="card" id="tela-codigo">
+  <!-- TELA 1: DIGITAR CÓDIGO DA SALA -->
+  <div class="card" id="tela-sala">
     <h2>Painel do Tablet</h2>
     <p>Digite o código da sala gerado pelo Administrador para liberar o terminal.</p>
+    <input type="text" id="codigoSalaInput" placeholder="EX: SALA123">
+    <button onclick="validarCodigoSala()">Acessar Terminal</button>
+  </div>
+
+  <!-- TELA 2: DIGITAR CPF DO ALUNO -->
+  <div class="card hidden" id="tela-cpf">
+    <h2>Registro de Presença</h2>
+    <p>Digite o CPF do aluno cadastrado para iniciar</p>
+    <input type="text" id="cpfAlunoInput" placeholder="000.000.000-00">
+    <button onclick="verificarCPF()">Continuar para a Câmera</button>
+  </div>
+
+  <!-- TELA 3: TIRAR FOTO COM A CÂMERA -->
+  <div class="card hidden" id="tela-camera">
+    <h2>Capturar Presença</h2>
+    <p id="alunoNomeInfo">Posicione-se para a foto</p>
     
-    <input type="text" id="codigoSala" placeholder="EX: SALA123" required>
-    <button onclick="verificarCodigo()">Acessar Terminal</button>
-    <div id="erro" class="error-msg">Código incorreto. Tente novamente.</div>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" class="hidden"></canvas>
+    
+    <button onclick="tirarFotoESalvar()">Tirar Foto e Enviar</button>
+  </div>
+
+  <!-- TELA 4: SUCESSO -->
+  <div class="card hidden" id="tela-sucesso">
+    <h2>Presença Registrada!</h2>
+    <div class="success-box">
+      Foto enviada com sucesso e responsável notificado!
+    </div>
+    <button onclick="reiniciarTerminal()">Próximo Aluno</button>
   </div>
 
   <script>
-    function verificarCodigo() {
-      const codigoDigitado = document.getElementById('codigoSala').value.trim();
-      
-      // Aqui você define provisoriamente qual é o código válido da sala (ou integra com o backend depois)
-      // Exemplo de código da sala: "1234" ou o que o Admin cadastrou
-      if (codigoDigitado !== "") {
-        // Salva que a sala foi autorizada e recarrega ou mostra o terminal do tablet
-        localStorage.setItem('salaAutorizada', codigoDigitado);
-        alert('Código aceito! Abrindo o terminal do tablet...');
-        
-        // Se quiser que mude para o painel real do tablet, substitua abaixo ou mantenha a lógica atual
-        // window.location.href = 'terminal-frequencia.html'; 
+    let streamCamera = null;
+
+    // 1. Valida o Código da Sala criado pelo Admin
+    function validarCodigoSala() {
+      const codigo = document.getElementById('codigoSalaInput').value.trim();
+      if (codigo !== "") {
+        // Aqui checa com o backend/banco se o código da sala existe
+        document.getElementById('tela-sala').classList.add('hidden');
+        document.getElementById('tela-cpf').classList.remove('hidden');
       } else {
-        document.getElementById('erro').style.display = 'block';
+        alert('Por favor, digite o código da sala.');
       }
+    }
+
+    // 2. Verifica o CPF no Banco de Dados
+    function verificarCPF() {
+      const cpf = document.getElementById('cpfAlunoInput').value.trim();
+      if (cpf.length < 11) {
+        alert('Digite um CPF válido.');
+        return;
+      }
+
+      // Consulta simulada ao banco de dados para puxar o nome do aluno pelo CPF
+      // (No seu backend Node.js, aqui fará a requisição para buscar o aluno cadastrado pelo responsável)
+      document.getElementById('tela-cpf').classList.add('hidden');
+      document.getElementById('tela-camera').classList.remove('hidden');
+      
+      iniciarCamera();
+    }
+
+    // 3. Ativa a Câmera do Dispositivo
+    async function iniciarCamera() {
+      try {
+        const videoElement = document.getElementById('video');
+        streamCamera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        videoElement.srcObject = streamCamera;
+      } catch (err) {
+        alert('Erro ao acessar a câmera. Verifique as permissões do navegador.');
+      }
+    }
+
+    // 4. Tira a Foto, Salva no Banco e Envia ao Responsável
+    function tirarFotoESalvar() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const imagemBase64 = canvas.toDataURL('image/png');
+
+      // Parar a câmera
+      if (streamCamera) {
+        streamCamera.getTracks().forEach(track => track.stop());
+      }
+
+      // Aqui os dados (CPF + Imagem Base64) são enviados para o seu backend salvar no banco
+      // e disparar a notificação para o e-mail/responsável cadastrado.
+
+      document.getElementById('tela-camera').classList.add('hidden');
+      document.getElementById('tela-sucesso').classList.remove('hidden');
+    }
+
+    // 5. Reinicia o terminal para o próximo aluno
+    function reiniciarTerminal() {
+      document.getElementById('cpfAlunoInput').value = '';
+      document.getElementById('codigoSalaInput').value = '';
+      document.getElementById('tela-sucesso').classList.add('hidden');
+      document.getElementById('tela-sala').classList.remove('hidden');
     }
   </script>
 
