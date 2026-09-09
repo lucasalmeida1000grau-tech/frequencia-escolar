@@ -1,67 +1,34 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acompanhamento do Aluno - Frequência Escolar</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f0f2f5; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-    h2 { color: #333; margin-bottom: 20px; text-align: center; font-size: 20px; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px; }
-    .info-group { margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 8px; }
-    label { display: block; font-size: 11px; color: #6c757d; margin-bottom: 4px; text-transform: uppercase; font-weight: bold; }
-    span { font-size: 15px; color: #212529; font-weight: bold; }
-    .btn-sair { background: #dc3545; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; width: 100%; cursor: pointer; margin-top: 20px; }
-    .btn-sair:hover { background: #bb2d3b; }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h2>Dados do Aluno Vinculado</h2>
+window.onload = function() {
+    // Supondo que você pegue o CPF do aluno logado (exemplo fixo ou puxado do login)
+    const cpfDoAlunoLogado = "123.456.789-00"; 
     
-    <div class="info-group">
-      <label>Nome do Aluno</label>
-      <span id="lblNome">Carregando...</span>
-    </div>
+    // Puxa os dados salvos do histórico
+    const registrosSalvos = JSON.parse(localStorage.getItem("historico_" + cpfDoAlunoLogado)) || [];
+    
+    const containerHistorico = document.getElementById("lista-historico");
+    
+    if (containerHistorico) {
+        containerHistorico.innerHTML = ""; // Limpa a mensagem de "Carregando..."
 
-    <div class="info-group">
-      <label>CPF do Aluno</label>
-      <span id="lblCpf">Carregando...</span>
-    </div>
+        if (registrosSalvos.length === 0) {
+            containerHistorico.innerHTML = "<p>Nenhum registro de presença encontrado ainda.</p>";
+            return;
+        }
 
-    <div class="info-group">
-      <label>Turma</label>
-      <span id="lblTurma">Carregando...</span>
-    </div>
+        // Desenha cada registro na tela do usuário
+        registrosSalvos.forEach(item => {
+            const bloco = document.createElement("div");
+            bloco.style.cssText = "border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 8px; background: #fff;";
+            
+            bloco.innerHTML = `
+                <p style="margin: 0 0 5px 0;"><strong>Data:</strong> ${item.data} às ${item.hora}</p>
+                <p style="margin: 0 0 8px 0; color: green;"><strong>Status:</strong> Presente</p>
+                <p style="margin: 0 0 5px 0;"><strong>Foto do Registro:</strong></p>
+                <img src="${item.foto}" alt="Foto da Presença" style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;" />
+            `;
+            
+            containerHistorico.appendChild(bloco);
+        });
+    }
+};
 
-    <div class="info-group">
-      <label>E-mail do Responsável</label>
-      <span id="lblEmail">Carregando...</span>
-    </div>
-
-    <button class="btn-sair" onclick="window.location.href='index.html'">Sair da Conta</button>
-  </div>
-
-  <script>
-    window.onload = function() {
-      // Recupera a sessão atual do usuário logado
-      const usuarioLogado = JSON.parse(localStorage.getItem('sessaoAtual'));
-      
-      if (!usuarioLogado) {
-        alert('Faça login para acessar esta página.');
-        window.location.href = 'index.html';
-        return;
-      }
-
-      // Preenche os dados na tela
-      document.getElementById('lblNome').innerText = usuarioLogado.nome || 'Não informado';
-      document.getElementById('lblCpf').innerText = usuarioLogado.cpf || 'Não informado';
-      document.getElementById('lblTurma').innerText = usuarioLogado.turma || 'Não informado';
-      document.getElementById('lblEmail').innerText = usuarioLogado.email || 'Não informado';
-    };
-  </script>
-
-</body>
-</html>
