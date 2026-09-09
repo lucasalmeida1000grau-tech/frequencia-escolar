@@ -2,21 +2,51 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Início - Sistema Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frequência Escolar - Login</title>
 </head>
 <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; position: relative;">
 
-    <!-- Ícone de Engrenagem do Admin no canto superior direito -->
-    <a href="login-admin.html" style="position: absolute; top: 20px; right: 20px; font-size: 24px; text-decoration: none;" title="Painel Admin">⚙️</a>
+    <!-- Engrenagem discreta no canto superior direito para o Admin -->
+    <a href="login-admin.html" style="position: absolute; top: 20px; right: 20px; font-size: 20px; text-decoration: none;" title="Admin">⚙️</a>
 
-    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; width: 320px;">
-        <h2>Sistema de Frequência</h2>
-        <p style="color: #666; font-size: 14px;">Escolha como deseja acessar:</p>
+    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 350px; text-align: center;">
         
-        <a href="cadastro.html" style="display: block; background: #007BFF; color: white; padding: 10px; margin: 10px 0; border-radius: 4px; text-decoration: none;">Cadastrar-se</a>
-        <a href="painel-usuario.html" style="display: block; background: #28a745; color: white; padding: 10px; margin: 10px 0; border-radius: 4px; text-decoration: none;">Portal do Aluno / Responsável</a>
-        <a href="tablet.html" style="display: block; background: #ffc107; color: #333; padding: 10px; margin: 10px 0; border-radius: 4px; text-decoration: none;">Modo Tablet (Chamada)</a>
+        <h2 style="margin-bottom: 5px; color: #222;">Frequência Escolar</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Faça login para continuar</p>
+        
+        <form onsubmit="fazerLogin(event)" style="text-align: left;">
+            <label style="font-size: 13px; color: #333; font-weight: bold;">E-mail ou Usuário</label><br>
+            <input type="text" id="login-usuario" placeholder="Digite seu e-mail ou usuário" style="width: 100%; padding: 12px; margin: 6px 0 15px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" required><br>
+            
+            <label style="font-size: 13px; color: #333; font-weight: bold;">Senha</label><br>
+            <input type="password" id="login-senha" placeholder="Digite sua senha" style="width: 100%; padding: 12px; margin: 6px 0 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" required><br>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 13px;">
+                <label style="display: flex; align-items: center; color: #55f; cursor: pointer;">
+                    <input type="checkbox" style="margin-right: 5px;"> Lembrar
+                </label>
+                <a href="cadastro.html" style="color: #007BFF; text-decoration: none;">Criar conta</a>
+            </div>
+            
+            <button type="submit" style="width: 100%; background: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer;">Entrar no Sistema</button>
+        </form>
+
+        <div style="margin: 20px 0; border-bottom: 1px solid #eee; position: relative;">
+            <span style="background: white; padding: 0 10px; color: #aaa; font-size: 12px; position: absolute; top: -7px; left: 50%; transform: translateX(-50%);">OU</span>
+        </div>
+
+        <a href="tablet.html" style="display: block; width: 100%; background: #007BFF; color: white; padding: 12px; box-sizing: border-box; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;">📱 Acessar Painel do Tablet</a>
     </div>
 
+    <script>
+        function fazerLogin(event) {
+            event.preventDefault();
+            const usuario = document.getElementById("login-usuario").value;
+            
+            // Redireciona para o painel do usuário após logar
+            window.location.href = "painel-usuario.html";
+        }
+    </script>
 </body>
 </html>
