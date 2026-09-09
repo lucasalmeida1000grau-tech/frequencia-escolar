@@ -25,7 +25,6 @@
     <h2>Criar Conta e Cadastrar Aluno</h2>
     
     <form onsubmit="salvarCadastro(event)">
-      <!-- Dados do Responsável -->
       <div class="form-group">
         <label>E-mail de Acesso</label>
         <input type="email" id="emailResp" placeholder="seu@email.com" required>
@@ -33,12 +32,11 @@
 
       <div class="form-group">
         <label>Senha</label>
-        <input type="password" id="senhaResp" placeholder="Crie uma senha segura" required>
+        <input type="password" id="senhaResp" placeholder="Crie uma senha" required>
       </div>
 
       <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
-      <!-- Dados do Aluno -->
       <div class="form-group">
         <label>Nome Completo do Aluno</label>
         <input type="text" id="nomeAluno" placeholder="Nome do aluno" required>
@@ -70,16 +68,12 @@
       const cpf = document.getElementById('cpfAluno').value.trim();
       const turma = document.getElementById('turmaAluno').value.trim();
 
-      // Simulação de salvamento no navegador / banco de dados local
-      // No seu backend definitivo, esses dados serão gravados associando o e-mail/senha ao CPF do aluno.
-      const dadosConta = { email, senha, nome, cpf, turma };
-      
+      const dadosConta = { email, senha, nome, cpf, turma, isAdmin: false };
       let contasSalvas = JSON.parse(localStorage.getItem('listaContas') || '[]');
       
-      // Verifica se o e-mail já existe cadastrado
       const existe = contasSalvas.find(c => c.email === email);
       if (existe) {
-        alert('Este e-mail já possui uma conta cadastrada! Faça login.');
+        alert('Este e-mail já possui conta cadastrada!');
         window.location.href = 'index.html';
         return;
       }
@@ -87,7 +81,7 @@
       contasSalvas.push(dadosConta);
       localStorage.setItem('listaContas', JSON.stringify(contasSalvas));
 
-      alert('Conta criada e aluno cadastrado com sucesso! Você já pode entrar.');
+      alert('Conta criada com sucesso! Faça login.');
       window.location.href = 'index.html';
     }
   </script>
