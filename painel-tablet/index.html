@@ -7,86 +7,186 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background-color: #eef2f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .tablet-container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); width: 100%; max-width: 500px; text-align: center; }
-    h1 { color: #333; margin-bottom: 10px; font-size: 26px; }
-    p { color: #666; margin-bottom: 25px; font-size: 15px; }
-    .input-group { margin-bottom: 20px; text-align: left; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; color: #444; font-size: 14px; }
-    input { width: 100%; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-size: 18px; text-align: center; }
+    .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); width: 100%; max-width: 450px; text-align: center; }
+    h2 { color: #333; margin-bottom: 10px; }
+    p { color: #666; margin-bottom: 20px; font-size: 14px; }
+    input, button { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px; font-size: 16px; }
+    input { border: 2px solid #ccc; text-align: center; }
     input:focus { border-color: #007bff; outline: none; }
-    button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
-    button:hover { background-color: #218838; }
-    #mensagem-status { margin-top: 20px; font-size: 18px; font-weight: bold; min-height: 30px; }
+    button { background-color: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .btn-success { background-color: #28a745; }
+    .btn-success:hover { background-color: #218838; }
+    video, canvas { width: 100%; max-height: 300px; border-radius: 8px; margin-bottom: 15px; background: #000; display: none; }
+    #mensagem-status { margin-top: 15px; font-size: 16px; font-weight: bold; }
     .sucesso { color: #28a745; }
     .erro { color: #dc3545; }
-    .voltar { display: block; margin-top: 20px; color: #007bff; text-decoration: none; font-size: 14px; }
+    .voltar { display: inline-block; margin-top: 15px; color: #007bff; text-decoration: none; font-size: 14px; }
   </style>
 </head>
 <body>
 
-  <div class="tablet-container">
-    <h1>📱 Registro de Frequência</h1>
-    <p>Digite sua matrícula ou aproxime o cartão/código</p>
-
-    <div class="input-group">
-      <label>Código do Aluno / Matrícula</label>
-      <input type="text" id="codigo-aluno" placeholder="Ex: 12345" autofocus>
-    </div>
-
-    <button onclick="registrarPresenca()">Confirmar Presença</button>
-
-    <div id="mensagem-status"></div>
-
-    <a href="../" class="voltar">← Voltar para a tela de Login</a>
+  <!-- ETAPA 1: DIGITAR O CÓDIGO DA SALA CADASTRADO PELO ADM -->
+  <div class="card" id="etapa-sala">
+    <h2>📱 Painel do Tablet</h2>
+    <p>Insira o código da sala gerado pelo Administrador</p>
+    <input type="text" id="input-codigo-sala" placeholder="Ex: 7a2026">
+    <button onclick="validarSala()">Acessar Sala</button>
+    <a href="../" class="voltar">← Voltar para a Login</a>
   </div>
+
+  <!-- ETAPA 2: DIGITAR O CPF DO ALUNO -->
+  <div class="card" id="etapa-cpf" style="display: none;">
+    <h2 id="titulo-sala-ativa">Turma</h2>
+    <p>Digite o CPF do Aluno para registrar presença</p>
+    <input type="text" id="input-cpf" placeholder="000.000.000-00">
+    <button onclick="avancarParaCamera()" class="btn-success">Continuar com Foto</button>
+    <button onclick="voltarParaSalas()" style="background: #6c757d;">Trocar de Sala</button>
+  </div>
+
+  <!-- ETAPA 3: TIRAR A FOTO COM A CÂMERA -->
+  <div class="card" id="etapa-camera" style="display: none;">
+    <h2>📸 Validação por Foto</h2>
+    <p>Posicione-se para a foto de confirmação</p>
+    
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <button onclick="tirarFotoEEnviar()" class="btn-success" id="btn-tirar-foto">Tirar Foto e Enviar</button>
+    <button onclick="cancelarCamera()" style="background: #dc3545;">Cancelar / Outro CPF</button>
+  </div>
+
+  <div id="mensagem-status" style="text-align: center;"></div>
 
   <script>
     const API_URL = 'https://frequencia-escolar-online.onrender.com';
+    let salaAtual = '';
+    let cpfAtual = '';
+    let streamCamera = null;
 
-    async function registrarPresenca() {
-      const codigo = document.getElementById('codigo-aluno').value.trim();
-      const statusDiv = document.getElementById('mensagem-status');
-
+    // 1. Validar se a sala existe no sistema (cadastrada pelo ADM)
+    async function validarSala() {
+      const codigo = document.getElementById('input-codigo-sala').value.trim();
       if (!codigo) {
-        statusDiv.className = 'erro';
-        statusDiv.innerText = 'Por favor, informe o código do aluno.';
+        alert('Digite o código da sala.');
         return;
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/tablet/registrar`, {
+        const res = await fetch(`${API_URL}/api/tablet/validar-sala`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ codigoAluno: codigo })
+          body: JSON.stringify({ codigo })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          salaAtual = codigo;
+          document.getElementById('titulo-sala-ativa').innerText = `Sala: ${data.nomeTurma || codigo}`;
+          document.getElementById('etapa-sala').style.display = 'none';
+          document.getElementById('etapa-cpf').style.display = 'block';
+        } else {
+          alert(data.mensagem || 'Código de sala inválido ou não cadastrado pelo ADM.');
+        }
+      } catch (err) {
+        alert('Erro ao conectar com o servidor.');
+      }
+    }
+
+    function voltarParaSalas() {
+      document.getElementById('etapa-cpf').style.display = 'none';
+      document.getElementById('etapa-sala').style.display = 'block';
+      document.getElementById('input-codigo-sala').value = '';
+    }
+
+    // 2. Avançar para ligar a câmera após o CPF
+    async function avançarParaCamera() {
+      const cpf = document.getElementById('input-cpf').value.trim();
+      if (!cpf) {
+        alert('Por favor, digite o CPF.');
+        return;
+      }
+      cpfAtual = cpf;
+
+      document.getElementById('etapa-cpf').style.display = 'none';
+      document.getElementById('etapa-camera').style.display = 'block';
+
+      // Ligar a câmera frontal do tablet/celular
+      try {
+        streamCamera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        const video = document.getElementById('video');
+        video.style.display = 'block';
+        video.srcObject = streamCamera;
+      } catch (err) {
+        alert('Não foi possível acessar a câmera do dispositivo. Verifique as permissões.');
+        cancelarCamera();
+      }
+    }
+
+    // 3. Tirar a foto, converter e enviar junto com o CPF e a Sala para o responsável
+    async function tirarFotoEEnviar() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      
+      canvas.width = video.videoWidth || 400;
+      canvas.height = video.videoHeight || 300;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const fotoBase64 = canvas.toDataURL('image/jpeg', 0.7); // Imagem comprimida
+
+      // Desligar a câmera
+      pararCamera();
+
+      try {
+        const response = await fetch(`${API_URL}/api/tablet/registrar-presenca`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            codigoSala: salaAtual,
+            cpfAluno: cpfAtual,
+            foto: fotoBase64
+          })
         });
 
         const data = await response.json();
+        const statusDiv = document.getElementById('mensagem-status');
 
         if (response.ok) {
           statusDiv.className = 'sucesso';
-          statusDiv.innerText = data.mensagem || 'Presença registrada com sucesso!';
-          document.getElementById('codigo-aluno').value = ''; // Limpa o campo para o próximo
+          statusDiv.innerText = data.mensagem || 'Presença e foto enviadas com sucesso para o responsável!';
         } else {
           statusDiv.className = 'erro';
-          statusDiv.innerText = data.mensagem || 'Erro ao registrar.';
+          statusDiv.innerText = data.mensagem || 'Erro ao registrar presença.';
         }
       } catch (err) {
-        statusDiv.className = 'erro';
-        statusDiv.innerText = 'Erro de conexão com o servidor.';
+        alert('Erro de conexão ao enviar dados.');
       }
 
-      // Limpa a mensagem após 4 segundos
+      // Reseta para o próximo aluno após 4 segundos
       setTimeout(() => {
-        statusDiv.innerText = '';
+        document.getElementById('mensagem-status').innerText = '';
+        document.getElementById('input-cpf').value = '';
+        document.getElementById('etapa-camera').style.display = 'none';
+        document.getElementById('etapa-cpf').style.display = 'block';
       }, 4000);
     }
 
-    // Permite enviar apertando "Enter" no teclado do tablet
-    document.getElementById('codigo-aluno').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        registrarPresenca();
+    function pararCamera() {
+      if (streamCamera) {
+        streamCamera.getTracks().forEach(track => track.stop());
+        streamCamera = null;
       }
-    });
+      document.getElementById('video').style.display = 'none';
+    }
+
+    function cancelarCamera() {
+      pararCamera();
+      document.getElementById('etapa-camera').style.display = 'none';
+      document.getElementById('etapa-cpf').style.display = 'block';
+      document.getElementById('input-cpf').value = '';
+    }
   </script>
 </body>
 </html>
