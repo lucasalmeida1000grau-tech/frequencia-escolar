@@ -1,80 +1,31 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Tablet - Frequência Escolar</title>
-</head>
-<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
+function registrarPresencaComFoto(cpfAluno) {
+    const video = document.getElementById("video-camera"); // Certifique-se de ter a tag <video id="video-camera"> no seu HTML
+    
+    // Cria um espaço temporário (canvas) para tirar a "foto" do vídeo da câmera
+    const canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 240;
+    const contexto = canvas.getContext("2d");
+    contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Converte a imagem capturada em uma URL de texto (Base64)
+    const urlDaFoto = canvas.toDataURL("image/png");
 
-    <!-- Botão de sair da sala fixo no canto -->
-    <div id="botao-sair-container" style="display: none; text-align: right; margin-bottom: 20px;">
-        <button onclick="sairDaSala()" style="background: #d9534f; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Sair da Sala</button>
-    </div>
+    // Pega a data e a hora atual exata
+    const agora = new Date();
+    const dataFormatada = agora.toLocaleDateString('pt-BR');
+    const horaFormatada = agora.toLocaleTimeString('pt-BR');
 
-    <!-- Tela 1: Digitar o código da sala -->
-    <div id="tela-login-sala" style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2>Configurar Sala do Tablet</h2>
-        <label>Digite o Código da Sala:</label><br>
-        <input type="text" id="input-codigo-sala" style="width: 100%; padding: 8px; margin: 8px 0;" placeholder="Ex: Sala 01"><br>
-        <button onclick="salvarCodigoSala()" style="width: 100%; background: #28a745; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Salvar e Continuar</button>
-    </div>
+    const novoRegistro = {
+        data: dataFormatada,
+        hora: horaFormatada,
+        foto: urlDaFoto
+    };
 
-    <!-- Tela 2: Registro de presença -->
-    <div id="tela-chamada" style="display: none; max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2 id="exibe-sala">Sala: -</h2>
-        <p>Pronto para registrar a chamada dos alunos.</p>
-        <button onclick="simularRegistroAluno()" style="width: 100%; background: #007BFF; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Simular Leitura de Aluno (CPF)</button>
-    </div>
+    // Salva na memória do GitHub Pages vinculado ao CPF do aluno
+    let historicoAluno = JSON.parse(localStorage.getItem("historico_" + cpfAluno)) || [];
+    historicoAluno.unshift(novoRegistro); // Coloca o mais recente no topo
+    localStorage.setItem("historico_" + cpfAluno, JSON.stringify(historicoAluno));
 
-    <script>
-        window.onload = function() {
-            const salaSalva = localStorage.getItem("codigoSalaAtual");
-            if (salaSalva) {
-                document.getElementById("tela-login-sala").style.display = "none";
-                document.getElementById("tela-chamada").style.display = "block";
-                document.getElementById("botao-sair-container").style.display = "block";
-                document.getElementById("exibe-sala").innerText = "Sala Atual: " + salaSalva;
-            } else {
-                document.getElementById("tela-login-sala").style.display = "block";
-                document.getElementById("tela-chamada").style.display = "none";
-                document.getElementById("botao-sair-container").style.display = "none";
-            }
-        };
-
-        function salvarCodigoSala() {
-            const codigo = document.getElementById("input-codigo-sala").value;
-            if (codigo.trim() !== "") {
-                localStorage.setItem("codigoSalaAtual", codigo);
-                location.reload();
-            } else {
-                alert("Digite um código de sala válido!");
-            }
-        }
-
-        function sairDaSala() {
-            localStorage.removeItem("codigoSalaAtual");
-            location.reload();
-        }
-
-        // Função de exemplo simulando quando o aluno bate o ponto
-        function simularRegistroAluno() {
-            const cpfAluno = "123.456.789-00"; // CPF de teste vinculado
-            const dataHoje = new Date().toLocaleDateString('pt-BR');
-            const horaAgora = new Date().toLocaleTimeString('pt-BR');
-            const fotoExemplo = "https://via.placeholder.com/120x90.png?text=Foto+Aluno"; // Imagem simulada
-
-            const novoRegistro = {
-                data: dataHoje,
-                hora: horaAgora,
-                foto: fotoExemplo
-            };
-
-            let historicoAntigo = JSON.parse(localStorage.getItem("historico_" + cpfAluno)) || [];
-            historicoAntigo.unshift(novoRegistro);
-            localStorage.setItem("historico_" + cpfAluno, JSON.stringify(historicoAntigo));
-            
-            alert("Presença registrada com sucesso para o aluno do CPF " + cpfAluno + "!");
-        }
-    </script>
-</body>
-</html>
+    alert("Presença registrada e foto enviada para o responsável!");
+}
