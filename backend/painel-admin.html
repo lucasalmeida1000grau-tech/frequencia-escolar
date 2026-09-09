@@ -2,31 +2,35 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Administrador</title>
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-    <div style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <div style="max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
         <h2>Painel Geral - Administrador</h2>
-        <p style="color: #666;">Lista completa de presenças registradas no sistema:</p>
+        <p style="color: #666; font-size: 14px;">Registro completo de acessos de todos os alunos pelo tablet:</p>
 
-        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <thead>
-                <tr style="background: #007BFF; color: white; text-align: left;">
-                    <th style="padding: 10px; border: 1px solid #ddd;">Nome</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">CPF</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Data e Hora</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-admin">
-                <tr>
-                    <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: center;">Nenhum registro encontrado.</td>
-                </tr>
-            </tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
+                <thead>
+                    <tr style="background: #007BFF; color: white; text-align: left;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Foto</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Nome</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Turma</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Data e Horário da Entrada</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-admin">
+                    <tr>
+                        <td colspan="4" style="padding: 15px; border: 1px solid #ddd; text-align: center;">Nenhum registro encontrado.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <br>
-        <button onclick="limparHistorico()" style="background: #dc3545; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Limpar Registros</button>
+        <button onclick="limparHistorico()" style="background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Limpar Todos os Registros</button>
         <br><br>
         <a href="index.html" style="font-size: 13px; color: #007BFF; text-decoration: none;">← Sair para a página inicial</a>
     </div>
@@ -39,9 +43,16 @@
             tabela.innerHTML = "";
             historico.forEach(item => {
                 const tr = document.createElement("tr");
+                
+                let imgTag = "Sem foto";
+                if (item.foto) {
+                    imgTag = `<img src="${item.foto}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                }
+
                 tr.innerHTML = `
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${imgTag}</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">${item.nome}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">${item.cpf}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${item.turma || "-"}</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">${item.data}</td>
                 `;
                 tabela.appendChild(tr);
@@ -49,7 +60,7 @@
         }
 
         function limparHistorico() {
-            if (confirm("Deseja realmente apagar todos os registros de presença?")) {
+            if (confirm("Deseja realmente apagar todo o histórico de presenças?")) {
                 localStorage.removeItem("historico_frequencia");
                 location.reload();
             }
