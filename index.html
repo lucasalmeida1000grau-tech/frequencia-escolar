@@ -6,14 +6,14 @@
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-    <!-- Ícone de Engrenagem no Canto Superior Direito para Acesso do Admin -->
+    <!-- Engrenagem no canto superior direito levando para o login do Admin -->
     <div style="text-align: right; margin-bottom: 20px;">
-        <a href="painel-admin.html" title="Painel do Administrador" style="text-decoration: none; font-size: 24px; background: #e0e0e0; padding: 8px 12px; border-radius: 50%;">⚙️</a>
+        <a href="login-admin.html" title="Painel do Administrador" style="text-decoration: none; font-size: 24px; background: #e0e0e0; padding: 8px 12px; border-radius: 50%;">⚙️</a>
     </div>
 
     <div style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2>Área do Responsável / Aluno</h2>
-        <p>Faça login para ver o painel de frequência:</p>
+        <h2>Área do Responsável</h2>
+        <p>Faça login para ver a frequência do aluno:</p>
         
         <form onsubmit="fazerLoginUsuario(event)">
             <label>E-mail:</label><br>
@@ -31,11 +31,10 @@
             event.preventDefault();
             const email = document.getElementById("email-usuario").value;
             
-            // Redireciona para o painel do usuário caso o e-mail exista
             if (email === "lucasalmeida.lima0899@gmail.com") {
                 window.location.href = "painel-usuario.html";
             } else {
-                alert("E-mail não encontrado no sistema.");
+                alert("E-mail não encontrado.");
             }
         }
     </script>
