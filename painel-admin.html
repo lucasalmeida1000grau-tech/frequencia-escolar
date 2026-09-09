@@ -2,58 +2,85 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel do Administrador</title>
+    <title>Painel Geral do Administrador</title>
 </head>
 <body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9;">
 
-    <div style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h2>Painel do Administrador</h2>
-        <p>Visão geral de todas as presenças registradas nos tablets.</p>
+    <div style="max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2>Painel Geral do Administrador</h2>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-        
-        <h3>Registro Geral de Presenças</h3>
-        <div id="historico-admin">
-            <p>Carregando registros...</p>
+
+        <h3>Alunos Presentes</h3>
+        <div id="lista-presentes">
+            <p>Carregando presenças...</p>
+        </div>
+
+        <h3 style="margin-top: 30px;">Alunos Ausentes (Faltaram)</h3>
+        <div id="lista-ausentes">
+            <p>Calculando ausências...</p>
         </div>
     </div>
 
     <script>
         window.onload = function() {
-            const containerAdmin = document.getElementById("historico-admin");
-            containerAdmin.innerHTML = "";
+            // Lista simulada de todos os alunos cadastrados na escola
+            const todosOsAlunos = [
+                { nome: "Lucas Lima", cpf: "4587...", turma: "1º Ano A", email: "lucasalmeida.lima0899@gmail.com" },
+                { nome: "Ana Souza", cpf: "123.456.789-00", turma: "1º Ano A", email: "ana.responsavel@gmail.com" }
+            ];
 
-            let encontrouRegistros = false;
+            const containerPresentes = document.getElementById("lista-presentes");
+            const containerAusentes = document.getElementById("lista-ausentes");
+            
+            containerPresentes.innerHTML = "";
+            containerAusentes.innerHTML = "";
 
-            // Varre a memória do navegador para procurar chaves que comecem com "historico_"
-            for (let i = 0; i < localStorage.length; i++) {
-                const chave = localStorage.key(i);
+            let presentesCPFs = [];
+
+            // 1. Verificar Alunos Presentes
+            todosOsAlunos.forEach(aluno => {
+                const historicoAluno = JSON.parse(localStorage.getItem("historico_" + aluno.cpf)) || [];
                 
-                if (chave.startsWith("historico_")) {
-                    encontrouRegistros = true;
-                    const cpfAluno = chave.replace("historico_", "");
-                    const listaRegistros = JSON.parse(localStorage.getItem(chave)) || [];
+                if (historicoAluno.length > 0) {
+                    // Pega o registro mais recente do dia
+                    const ultimoRegistro = historicoAluno[0];
+                    presentesCPFs.push(aluno.cpf);
 
-                    const blocoAluno = document.createElement("div");
-                    blocoAluno.style.cssText = "border: 1px solid #ccc; padding: 10px; margin-bottom: 15px; border-radius: 6px; background: #fafafa;";
+                    const blocoPresenca = document.createElement("div");
+                    blocoPresenca.style.cssText = "border: 1px solid #d4edda; background: #f8f9fa; padding: 12px; margin-bottom: 10px; border-radius: 6px;";
                     
-                    let htmlItens = `<h4>Aluno (CPF: ${cpfAluno})</h4>`;
-                    
-                    listaRegistros.forEach(reg => {
-                        htmlItens += `
-                            <div style="border-top: 1px dashed #ddd; padding-top: 5px; margin-top: 5px;">
-                                <p style="margin: 2px 0;"><strong>Data:</strong> ${reg.data} às ${reg.hora}</p>
-                                <img src="${reg.foto}" alt="Foto" style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px; margin-top: 5px;" />
-                            </div>
-                        `;
-                    });
-
-                    blocoAluno.innerHTML = htmlItens;
-                    containerAdmin.appendChild(blocoAluno);
+                    blocoPresenca.innerHTML = `
+                        <p style="margin: 0 0 4px 0;"><strong>Aluno:</strong> ${aluno.nome} | <strong>CPF:</strong> ${aluno.cpf}</p>
+                        <p style="margin: 0 0 4px 0;"><strong>Turma / Aula:</strong> ${aluno.turma}</p>
+                        <p style="margin: 0 0 4px 0;"><strong>Entrada:</strong> ${ultimoRegistro.data} às ${ultimoRegistro.hora}</p>
+                        <p style="margin: 0 0 4px 0;"><strong>E-mail do Responsável:</strong> ${aluno.email}</p>
+                        <p style="margin: 4px 0;"><strong>Foto Capturada:</strong></p>
+                        <img src="${ultimoRegistro.foto}" alt="Foto da Entrada" style="width: 100px; height: 75px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;" />
+                    `;
+                    containerPresentes.appendChild(blocoPresenca);
                 }
+            });
+
+            if (containerPresentes.innerHTML === "") {
+                containerPresentes.innerHTML = "<p style='color: #666;'>Nenhum registro de entrada no tablet hoje.</p>";
             }
 
-            if (!encontrouRegistros) {
-                containerAdmin.innerHTML = "<p>Nenhum registro de presença encontrado no sistema.</p>";
+            // 2. Verificar Alunos Ausentes
+            const alunosAusentes = todosOsAlunos.filter(aluno => !presentesCPFs.includes(aluno.cpf));
+
+            if (alunosAusentes.length === 0) {
+                containerAusentes.innerHTML = "<p style='color: green;'>Todos os alunos registraram presença!</p>";
+            } else {
+                alunosAusentes.forEach(alunoAusente => {
+                    const blocoAusente = document.createElement("div");
+                    blocoAusente.style.cssText = "border: 1px solid #f5c6cb; background: #fff8f8; padding: 10px; margin-bottom: 8px; border-radius: 6px;";
+                    
+                    blocoAusente.innerHTML = `
+                        <p style="margin: 0 0 4px 0; color: #721c24;"><strong>Ausente:</strong> ${alunoAusente.nome} (${alunoAusente.turma})</p>
+                        <p style="margin: 0; font-size: 13px; color: #555;">Responsável: ${alunoAusente.email} | CPF: ${alunoAusente.cpf}</p>
+                    `;
+                    containerAusentes.appendChild(blocoAusente);
+                });
             }
         };
     </script>
